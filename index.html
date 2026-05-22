@@ -998,7 +998,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--gris1);color:var(--negro)
     <button class="nav-btn active" onclick="goTab('pronosticos')">PRONÓSTICOS</button>
     <button class="nav-btn" onclick="goTab('resultados')">RESULTADOS</button>
     <button class="nav-btn" onclick="goTab('ranking')">POSICIONES</button>
-    <button class="nav-btn" onclick="goTab('admin')">ADMIN</button>
+    <button class="nav-btn" id="nav-admin" onclick="goTab('admin')">ADMIN</button>
   </nav>
   <main class="main">
     <div id="tab-pronosticos">
@@ -1168,6 +1168,8 @@ onAuthStateChanged(auth,user=>{
 
 <script>
 const ADMIN_PASS="movistar2026";
+const ADMIN_EMAILS=['mateopiccardi@movistararena.com.ar','federicosegovia@movistararena.com.ar'];
+function esAdmin(){ return currentUser && ADMIN_EMAILS.includes(currentUser.email); }
 const GRUPOS={
   A:[["México","Sudáfrica"],["Corea del Sur","Rep. Checa"],["Rep. Checa","Sudáfrica"],["México","Corea del Sur"],["Rep. Checa","México"],["Sudáfrica","Corea del Sur"]],
   B:[["Canadá","Bosnia"],["Qatar","Suiza"],["Suiza","Bosnia"],["Canadá","Qatar"],["Bosnia","Canadá"],["Suiza","Qatar"]],
@@ -1247,6 +1249,8 @@ function mostrarApp(user){
   if(user.photoURL){av.src=user.photoURL;av.style.display='block';}
   cargarDatos();
   actualizarCountdown();
+  const navAdmin=document.getElementById('nav-admin');
+  if(navAdmin) navAdmin.style.display=ADMIN_EMAILS.includes(user.email)?'':'none';
   setTimeout(mostrarBienvenida, 800);
 }
 function loginGoogle(){ window._signInWithPopup(window._auth, window._provider).catch(console.error); }
@@ -1506,7 +1510,19 @@ function goTab(t){
   document.querySelectorAll('.nav-btn').forEach((btn,i)=>{btn.classList.toggle('active',TABS[i]===t);});
   if(t==='resultados')renderResultados();
   if(t==='ranking')renderRanking();
-  if(t==='admin')renderAdminPartidos();
+  if(t==='admin'){
+    if(esAdmin()){
+      document.getElementById('admin-login-card').style.display='none';
+      document.getElementById('admin-panel').style.display='block';
+      const fCard=document.getElementById('admin-fases-card');if(fCard)fCard.style.display='block';
+      const eCard=document.getElementById('admin-elim-card');if(eCard)eCard.style.display='block';
+      const xCard=document.getElementById('admin-export-card');if(xCard)xCard.style.display='block';
+      const rCard=document.getElementById('admin-rrhh-card');if(rCard)rCard.style.display='block';
+      renderAdminFases();renderAdminElim();renderAdminPartidos();renderRRHH();
+    } else {
+      renderAdminPartidos();
+    }
+  }
 }
 
 // ── LOGO FLOTANTE ─────────────────────────────────────────────
