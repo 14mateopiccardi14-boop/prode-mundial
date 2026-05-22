@@ -1053,15 +1053,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--gris1);color:var(--negro)
       </div>
     </div>
     <div id="tab-admin" style="display:none">
-      <div class="card" id="admin-login-card">
-        <div class="card-title">Acceso admin</div>
-        <div style="display:flex;gap:.5rem">
-          <input class="input-field" id="inp-pass" type="password" placeholder="Contraseña...">
-          <button class="btn-primary" onclick="verificarAdmin()">Entrar</button>
-        </div>
-        <p id="pass-err" style="font-size:12px;color:var(--rojo);margin-top:6px;display:none">Contraseña incorrecta.</p>
-      </div>
-      <div id="admin-panel" style="display:none">
+      <div id="admin-panel">
       <div class="card" id="admin-rrhh-card" style="display:none">
         <div class="card-title">Seguimiento RRHH</div>
         <div class="rrhh-grid">
@@ -1167,7 +1159,6 @@ onAuthStateChanged(auth,user=>{
 </script>
 
 <script>
-const ADMIN_PASS="movistar2026";
 const ADMIN_EMAILS=['mateopiccardi@movistararena.com.ar','federicosegovia@movistararena.com.ar'];
 function esAdmin(){ return currentUser && ADMIN_EMAILS.includes(currentUser.email); }
 const GRUPOS={
@@ -1454,23 +1445,6 @@ function renderResultados(){
   });
 }
 
-function verificarAdmin(){
-  if(document.getElementById('inp-pass').value===ADMIN_PASS){
-    document.getElementById('admin-login-card').style.display='none';
-    document.getElementById('admin-panel').style.display='block';
-    // Mostrar panel de control de fases
-    const fCard = document.getElementById('admin-fases-card');
-    if(fCard) fCard.style.display='block';
-    const eCard = document.getElementById('admin-elim-card');
-    if(eCard) eCard.style.display='block';
-    renderAdminFases();
-    renderAdminElim();
-    renderAdminPartidos();
-    const xCard=document.getElementById("admin-export-card");if(xCard)xCard.style.display="block";
-    const rCard=document.getElementById('admin-rrhh-card');if(rCard)rCard.style.display='block';
-    renderRRHH();
-  }else{document.getElementById('pass-err').style.display='block';}
-}
 
 function renderAdminPartidos(){
   const cont=document.getElementById('admin-partidos');if(!cont)return;
@@ -1510,18 +1484,12 @@ function goTab(t){
   document.querySelectorAll('.nav-btn').forEach((btn,i)=>{btn.classList.toggle('active',TABS[i]===t);});
   if(t==='resultados')renderResultados();
   if(t==='ranking')renderRanking();
-  if(t==='admin'){
-    if(esAdmin()){
-      document.getElementById('admin-login-card').style.display='none';
-      document.getElementById('admin-panel').style.display='block';
-      const fCard=document.getElementById('admin-fases-card');if(fCard)fCard.style.display='block';
-      const eCard=document.getElementById('admin-elim-card');if(eCard)eCard.style.display='block';
-      const xCard=document.getElementById('admin-export-card');if(xCard)xCard.style.display='block';
-      const rCard=document.getElementById('admin-rrhh-card');if(rCard)rCard.style.display='block';
-      renderAdminFases();renderAdminElim();renderAdminPartidos();renderRRHH();
-    } else {
-      renderAdminPartidos();
-    }
+  if(t==='admin' && esAdmin()){
+    const fCard=document.getElementById('admin-fases-card');if(fCard)fCard.style.display='block';
+    const eCard=document.getElementById('admin-elim-card');if(eCard)eCard.style.display='block';
+    const xCard=document.getElementById('admin-export-card');if(xCard)xCard.style.display='block';
+    const rCard=document.getElementById('admin-rrhh-card');if(rCard)rCard.style.display='block';
+    renderAdminFases();renderAdminElim();renderAdminPartidos();renderRRHH();
   }
 }
 
@@ -1930,7 +1898,6 @@ function guardarFasesAdmin(){
 
 // Control de fases 100% manual desde admin
 
-// Panel de fases se muestra directo en verificarAdmin
 
 // Actualizar panel de fases cuando cambia adminData
 const _origEscucharAdmin = cargarDatos;
