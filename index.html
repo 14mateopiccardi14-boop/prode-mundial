@@ -52,11 +52,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--gris1);color:var(--negro)
 .pts-badge{background:var(--dorado);color:var(--negro);font-weight:700;font-size:12px;padding:4px 11px;border-radius:20px;font-family:'Bebas Neue',sans-serif;letter-spacing:.05em}
 .btn-logout{background:none;border:1px solid rgba(255,255,255,.2);color:rgba(255,255,255,.5);font-size:11px;padding:4px 10px;border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif}
 .btn-logout:hover{border-color:rgba(255,255,255,.5);color:var(--blanco)}
-.nav{background:var(--negro2);border-bottom:1px solid rgba(200,160,32,.15);display:flex;overflow-x:auto;scrollbar-width:none}
+.nav{background:var(--negro2);border-bottom:1px solid rgba(200,160,32,.15);display:flex;scrollbar-width:none}
 .nav::-webkit-scrollbar{display:none}
-.nav-btn{flex:none;padding:13px 18px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--gris3);background:none;border:none;border-bottom:2px solid transparent;cursor:pointer;white-space:nowrap;transition:all .15s}
+.nav-btn{flex:1;padding:13px 8px;font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:.12em;color:var(--gris3);background:none;border:none;border-bottom:3px solid transparent;cursor:pointer;text-align:center;white-space:nowrap;transition:all .15s}
 .nav-btn:hover{color:var(--blanco)}
-.nav-btn.active{color:var(--dorado);border-bottom-color:var(--dorado)}
+.nav-btn.active{color:var(--dorado);border-bottom-color:var(--dorado);background:rgba(200,160,32,.05)}
 .main{max-width:720px;margin:0 auto;padding:1.25rem 1rem 4rem}
 .card{background:var(--blanco);border-radius:var(--r);border:1px solid var(--gris2);padding:1.1rem 1.25rem;margin-bottom:.75rem;box-shadow:0 1px 6px rgba(0,0,0,.06)}
 .card-title{
@@ -994,10 +994,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--gris1);color:var(--negro)
   </div>
 </div>
 <nav class="nav">
-    <button class="nav-btn active" onclick="goTab('pronosticos')">Mis pronósticos</button>
-    <button class="nav-btn" onclick="goTab('resultados')">Mis resultados</button>
-    <button class="nav-btn" onclick="goTab('ranking')">Tabla de posiciones</button>
-    <button class="nav-btn" onclick="goTab('admin')">Admin</button>
+    <button class="nav-btn active" onclick="goTab('pronosticos')">PRONÓSTICOS</button>
+    <button class="nav-btn" onclick="goTab('resultados')">RESULTADOS</button>
+    <button class="nav-btn" onclick="goTab('ranking')">POSICIONES</button>
+    <button class="nav-btn" onclick="goTab('admin')">ADMIN</button>
   </nav>
   <main class="main">
     <div id="tab-pronosticos">
