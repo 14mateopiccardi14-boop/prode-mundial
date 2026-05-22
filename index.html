@@ -1130,7 +1130,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--gris1);color:var(--negro)
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getDatabase, ref, set, get, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, set, get, onValue, update, remove } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 const firebaseConfig = {
   apiKey:"AIzaSyC-3rvlvp0M238R9DZsd69y3vfwvQdiBO0",
   authDomain:"prode-ba-arena.firebaseapp.com",
@@ -1145,7 +1145,7 @@ const auth=getAuth(app);
 const db=getDatabase(app);
 const provider=new GoogleAuthProvider();
 window._auth=auth;window._db=db;window._ref=ref;window._set=set;window._GoogleAuthProvider=GoogleAuthProvider;
-window._onValue=onValue;window._update=update;window._get=get;
+window._onValue=onValue;window._update=update;window._get=get;window._remove=remove;
 window._provider=provider;window._signInWithPopup=signInWithPopup;window._signOut=signOut;
 onAuthStateChanged(auth,user=>{
   ocultarLoading();
@@ -2174,6 +2174,19 @@ function validarPronósticos(){
   }
 }
 
+// ── ELIMINAR USUARIO ─────────────────────────────────────────
+function eliminarUsuario(uid, nombre){
+  const nombreDec = decodeURIComponent(nombre);
+  if(!confirm('¿Eliminar a ' + nombreDec + ' del prode? Se borran sus pronósticos y puntos. Esta acción no se puede deshacer.')) return;
+  const updates={};
+  updates['ranking/'+uid]=null;
+  updates['usuarios/'+uid]=null;
+  window._update(window._ref(window._db), updates).then(()=>{
+    mostrarToast('✅ ' + nombreDec + ' eliminado');
+    renderRRHH();
+  }).catch(()=>mostrarToast('❌ Error al eliminar'));
+}
+
 // ── PANEL RRHH ────────────────────────────────────────────────
 function renderRRHH(){
   const lista = document.getElementById('rrhh-lista');
@@ -2211,7 +2224,7 @@ function renderRRHH(){
 
       const row = document.createElement('div');
       row.className='rrhh-user-row';
-      row.innerHTML=av+'<span class="rrhh-nombre">'+(r.nombre||'—')+'</span><span class="rrhh-badge '+cls+'">'+estado+'</span><span class="rrhh-pts">'+r.total+' pts</span>';
+      row.innerHTML=av+'<span class="rrhh-nombre">'+(r.nombre||'—')+'</span><span class="rrhh-badge '+cls+'">'+estado+'</span><span class="rrhh-pts">'+r.total+' pts</span><button onclick="eliminarUsuario(''+uid+'',''+encodeURIComponent(r.nombre||'—')+'')" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0 4px;color:var(--gris3)" title="Eliminar usuario">🗑</button>';
       lista.appendChild(row);
     });
 
