@@ -1128,7 +1128,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--gris1);color:var(--negro)
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
-import { getDatabase, ref, set, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
+import { getDatabase, ref, set, get, onValue, update } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-database.js";
 const firebaseConfig = {
   apiKey:"AIzaSyC-3rvlvp0M238R9DZsd69y3vfwvQdiBO0",
   authDomain:"prode-ba-arena.firebaseapp.com",
@@ -1143,7 +1143,7 @@ const auth=getAuth(app);
 const db=getDatabase(app);
 const provider=new GoogleAuthProvider();
 window._auth=auth;window._db=db;window._ref=ref;window._set=set;window._GoogleAuthProvider=GoogleAuthProvider;
-window._onValue=onValue;window._update=update;
+window._onValue=onValue;window._update=update;window._get=get;
 window._provider=provider;window._signInWithPopup=signInWithPopup;window._signOut=signOut;
 onAuthStateChanged(auth,user=>{ ocultarLoading(); if(user){mostrarApp(user);}else{mostrarLogin();} });
 </script>
@@ -1278,10 +1278,14 @@ function saveBonus(){
   window._set(window._ref(window._db,'usuarios/'+uid+'/bonus'),{campeon:document.getElementById('inp-campeon').value,goleador:document.getElementById('inp-goleador').value});
   recalc();
 }
+let _bonusTimer=null;
 function saveAdminBonus(){
-  adminData.campeon=document.getElementById('admin-camp').value;
-  adminData.goleador=document.getElementById('admin-gol').value;
-  window._set(window._ref(window._db,'admin'),adminData);
+  clearTimeout(_bonusTimer);
+  _bonusTimer=setTimeout(()=>{
+    adminData.campeon=document.getElementById('admin-camp').value;
+    adminData.goleador=document.getElementById('admin-gol').value;
+    window._set(window._ref(window._db,'admin'),adminData);
+  },800);
 }
 
 function calcPuntos(){
@@ -2106,14 +2110,15 @@ actualizarCountdown();
 
 // ── MODAL BIENVENIDA ──────────────────────────────────────────
 function mostrarBienvenida(){
-  const visto = localStorage.getItem('prode_bienvenida_visto');
+  const visto = localStorage.getItem('prode_bienvenida_visto') || sessionStorage.getItem('prode_bienvenida_session');
   if(!visto){
     document.getElementById('modal-bienvenida').style.display='flex';
   }
 }
 function cerrarBienvenida(){
   document.getElementById('modal-bienvenida').style.display='none';
-  localStorage.setItem('prode_bienvenida_visto','1');
+  try{ localStorage.setItem('prode_bienvenida_visto','1'); }catch(e){}
+  sessionStorage.setItem('prode_bienvenida_session','1');
 }
 
 // ── VALIDACIÓN PRONÓSTICOS INCOMPLETOS ────────────────────────
