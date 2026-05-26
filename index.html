@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Copa del Mundo 2026 — Movistar Arena</title>
+<link rel="icon" type="image/jpeg" href="9337105a83f393782ef944d4b59afa8f.jpg">
+<link rel="apple-touch-icon" href="9337105a83f393782ef944d4b59afa8f.jpg">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
 :root{--negro:#0A0A0A;--negro2:#1A1A1A;--negro3:#2A2A2A;--blanco:#FFFFFF;--gris1:#F5F5F5;--gris2:#E8E8E8;--gris3:#999999;--dorado:#C8A020;--dorado2:#F0C040;--rojo:#C0392B;--r:10px}
@@ -1480,6 +1482,7 @@ function renderAdminPartidos(){
 
 const TABS=['pronosticos','resultados','ranking','admin'];
 function goTab(t){
+  if(t==='admin' && !esAdmin()) t='pronosticos';
   TABS.forEach(id=>{document.getElementById('tab-'+id).style.display=id===t?'block':'none';});
   document.querySelectorAll('.nav-btn').forEach((btn,i)=>{btn.classList.toggle('active',TABS[i]===t);});
   if(t==='resultados')renderResultados();
@@ -2149,8 +2152,10 @@ function eliminarUsuario(uid, nombre){
   updates['ranking/'+uid]=null;
   updates['usuarios/'+uid]=null;
   window._update(window._ref(window._db), updates).then(()=>{
+    delete rankingData[uid];
     mostrarToast('✅ ' + nombreDec + ' eliminado');
     renderRRHH();
+    renderRanking();
   }).catch(()=>mostrarToast('❌ Error al eliminar'));
 }
 
@@ -2191,7 +2196,7 @@ function renderRRHH(){
 
       const row = document.createElement('div');
       row.className='rrhh-user-row';
-      row.innerHTML=av+'<span class="rrhh-nombre">'+(r.nombre||'—')+'</span><span class="rrhh-badge '+cls+'">'+estado+'</span><span class="rrhh-pts">'+r.total+' pts</span><button onclick="eliminarUsuario(''+uid+'',''+encodeURIComponent(r.nombre||'—')+'')" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0 4px;color:var(--gris3)" title="Eliminar usuario">🗑</button>';
+      row.innerHTML=av+'<span class="rrhh-nombre">'+(r.nombre||'—')+'</span><span class="rrhh-badge '+cls+'">'+estado+'</span><span class="rrhh-pts">'+r.total+' pts</span><button onclick="eliminarUsuario(\''+uid+'\',\''+encodeURIComponent(r.nombre||'—')+'\')" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0 4px;color:var(--gris3)" title="Eliminar usuario">🗑</button>';
       lista.appendChild(row);
     });
 
