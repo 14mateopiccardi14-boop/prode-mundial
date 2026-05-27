@@ -1710,12 +1710,15 @@ function renderStatusBar() {
   const pillTxt = document.getElementById('sb-pill-text');
   const fa = getFaseActual();
   let deadlineStr = null;
+  const mesesSB = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
   if (fa.estado === 'pre-torneo') {
-    const t = diasRestantes(FASES[0].plazoProno);
-    if (t) deadlineStr = 'Grupos cierra en ' + t;
+    const d = FASES[0].plazoProno;
+    const t = diasRestantes(d);
+    if (t) deadlineStr = 'Grupos · ' + d.getDate() + ' ' + mesesSB[d.getMonth()] + ' · en ' + t;
   } else if (fa.estado === 'abierto' && fa.fase) {
-    const t = diasRestantes(fa.fase.plazoProno);
-    if (t) deadlineStr = fa.fase.nombre + ' cierra en ' + t;
+    const d = fa.fase.plazoProno;
+    const t = diasRestantes(d);
+    if (t) deadlineStr = fa.fase.nombre + ' · ' + d.getDate() + ' ' + mesesSB[d.getMonth()] + ' · en ' + t;
   }
   if (pill && pillTxt) {
     if (deadlineStr) {
@@ -1849,7 +1852,9 @@ function updateMatchDeadlines() {
     const urgente = diff < 2 * 60 * 60 * 1000;
     dot.className = 'match-dot ' + (urgente ? 'md-warn' : 'md-ok');
     dl.className = 'match-dl-text ' + (urgente ? 'md-warn' : 'md-ok');
-    dl.textContent = 'Cierra en ' + t;
+    const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
+    const fechaStr = deadline.getDate() + ' ' + meses[deadline.getMonth()];
+    dl.textContent = 'Cierra el ' + fechaStr + ' · en ' + t;
   });
 }
 
