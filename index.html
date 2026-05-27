@@ -1576,7 +1576,7 @@ function uidKey(){return currentUser?currentUser.uid:null;}
 
 function cargarDatos(){
   const uid=uidKey();if(!uid)return;
-  window._onValue(window._ref(window._db,'usuarios/'+uid+'/pronos'),snap=>{misPronos=snap.val()||{};renderFixture();recalc();});
+  window._onValue(window._ref(window._db,'usuarios/'+uid+'/pronos'),snap=>{misPronos=snap.val()||{};renderFixture();recalc();updateMatchDeadlines();});
   window._onValue(window._ref(window._db,'usuarios/'+uid+'/bonus'),snap=>{
     const b=snap.val()||{};
     document.getElementById('inp-campeon').value=b.campeon||'';
@@ -1731,42 +1731,124 @@ function renderStatusBar() {
 
 function renderFixture(){
   const cont=document.getElementById('fixture-container');cont.innerHTML='';
-  // Grupos
+
+  function buildMatchCard(p, localName, visitName, esElim) {
+    const pr = misPronos[p.id] || {};
+    const lVal = pr.l != null ? pr.l : '';
+    const vVal = pr.v != null ? pr.v : '';
+    const hasPron = lVal !== '' && vVal !== '';
+    const mcClass = hasPron ? 'mc-saved' : 'mc-pending';
+    const filledClass = hasPron ? 'mc-filled' : '';
+    const ptsLabel = esElim
+      ? 'Exacto <span>+4</span> · Ganador <span>+2</span>'
+      : 'Exacto <span>+3</span> · Ganador <span>+1</span>';
+
+    const card = document.createElement('div');
+    card.className = 'match-card ' + mcClass;
+    card.innerHTML =
+      '<div class="match-strip"></div>' +
+      '<div class="match-body">' +
+        '<div class="match-teams">' +
+          '<div class="match-team"><span class="match-flag">' + getFlag(localName) + '</span><span class="match-team-name">' + localName + '</span></div>' +
+          '<div class="match-team"><span class="match-flag">' + getFlag(visitName) + '</span><span class="match-team-name">' + visitName + '</span></div>' +
+        '</div>' +
+        '<div class="match-inputs">' +
+          '<input class="score-in ' + filledClass + '" type="number" min="0" max="20" value="' + lVal + '" placeholder="—" data-pid="' + p.id + '" data-side="l">' +
+          '<input class="score-in ' + filledClass + '" type="number" min="0" max="20" value="' + vVal + '" placeholder="—" data-pid="' + p.id + '" data-side="v">' +
+        '</div>' +
+      '</div>' +
+      '<div class="match-footer">' +
+        '<div class="match-deadline">' +
+          '<div class="match-dot md-warn" id="dot-' + p.id + '"></div>' +
+          '<span class="match-dl-text md-warn" id="dl-' + p.id + '">Cierra en...</span>' +
+        '</div>' +
+        '<div class="match-chip-wrap">' +
+          '<div class="match-pts">' + ptsLabel + '</div>' +
+          '<div class="chip c-pend" id="chip-' + p.id + '">?</div>' +
+        '</div>' +
+      '</div>';
+    return card;
+  }
+
   const hg=document.createElement('div');hg.className='etapa-header';hg.textContent='FASE DE GRUPOS';cont.appendChild(hg);
   Object.keys(GRUPOS).forEach(g=>{
     const card=document.createElement('div');card.className='card';
     card.innerHTML='<div class="grupo-header"><div class="grupo-badge">G'+g+'</div><span style="font-size:13px;font-weight:600;color:var(--gris3)">Grupo '+g+'</span></div>';
     GRUPOS[g].forEach(([loc,vis])=>{
       const p=partidos.find(x=>x.grupo===g&&x.local===loc&&x.visit===vis);if(!p)return;
-      const pr=misPronos[p.id]||{};
-      const row=document.createElement('div');row.className='partido-row';
-      row.innerHTML='<span class="team r">'+loc+'</span><input class="score-in" type="number" min="0" max="20" value="'+(pr.l!=null?pr.l:'')+'" placeholder="—" data-pid="'+p.id+'" data-side="l"><span class="vs">vs</span><input class="score-in" type="number" min="0" max="20" value="'+(pr.v!=null?pr.v:'')+'" placeholder="—" data-pid="'+p.id+'" data-side="v"><span class="team">'+vis+'</span><span class="chip c-pend" id="chip-'+p.id+'">?</span>';
-      card.appendChild(row);
+      card.appendChild(buildMatchCard(p, loc, vis, false));
     });
     cont.appendChild(card);
   });
-  // Eliminatorias
+
   const etapas=[...new Set(ELIM.map(p=>p.etapa))];
   etapas.forEach(etapa=>{
     const he=document.createElement('div');he.className='etapa-header';he.textContent=etapa.toUpperCase();cont.appendChild(he);
     const card=document.createElement('div');card.className='card';
     ELIM.filter(p=>p.etapa===etapa).forEach(p=>{
-      const pr=misPronos[p.id]||{};
-      const row=document.createElement('div');row.className='partido-row';
-      row.innerHTML='<span class="team r" style="font-size:12px;color:var(--negro);font-weight:500">'+getElimLocal(p)+'</span><input class="score-in" type="number" min="0" max="20" value="'+(pr.l!=null?pr.l:'')+'" placeholder="—" data-pid="'+p.id+'" data-side="l"><span class="vs">vs</span><input class="score-in" type="number" min="0" max="20" value="'+(pr.v!=null?pr.v:'')+'" placeholder="—" data-pid="'+p.id+'" data-side="v"><span class="team" style="font-size:12px;color:var(--negro);font-weight:500">'+getElimVisit(p)+'</span><span class="chip c-pend" id="chip-'+p.id+'">?</span>';
-      card.appendChild(row);
+      card.appendChild(buildMatchCard(p, getElimLocal(p), getElimVisit(p), true));
     });
     cont.appendChild(card);
   });
+
   document.querySelectorAll('.score-in').forEach(inp=>{
     inp.addEventListener('change',function(){
       const pid=this.dataset.pid,side=this.dataset.side;
       if(!misPronos[pid])misPronos[pid]={};
       misPronos[pid][side]=this.value===''?null:parseInt(this.value);
-      saveProno(pid,side,this.value);updateChip(pid);recalc();
+      saveProno(pid,side,this.value);
+      const card=this.closest('.match-card');
+      if(card){
+        const pr=misPronos[pid]||{};
+        const hasPron=pr.l!=null&&pr.v!=null;
+        card.classList.toggle('mc-saved',hasPron);
+        card.classList.toggle('mc-pending',!hasPron);
+        card.querySelectorAll('.score-in').forEach(i=>{
+          i.classList.toggle('mc-filled',hasPron);
+        });
+      }
+      updateChip(pid);recalc();
     });
   });
+
   refreshChips();
+  renderStatusBar();
+}
+
+function updateMatchDeadlines() {
+  const fa = getFaseActual();
+  let deadline = null;
+
+  if (fa.estado === 'pre-torneo') {
+    deadline = FASES[0].plazoProno;
+  } else if (fa.estado === 'abierto' && fa.fase) {
+    deadline = fa.fase.plazoProno;
+  }
+
+  const todos = [...partidos, ...ELIM];
+  todos.forEach(p => {
+    const dot = document.getElementById('dot-' + p.id);
+    const dl = document.getElementById('dl-' + p.id);
+    if (!dot || !dl) return;
+    if (!deadline) {
+      dot.className = 'match-dot md-off';
+      dl.className = 'match-dl-text md-off';
+      dl.textContent = 'Cerrado';
+      return;
+    }
+    const t = diasRestantes(deadline);
+    if (!t) {
+      dot.className = 'match-dot md-off';
+      dl.className = 'match-dl-text md-off';
+      dl.textContent = 'Cerrado';
+      return;
+    }
+    const diff = deadline - new Date();
+    const urgente = diff < 2 * 60 * 60 * 1000;
+    dot.className = 'match-dot ' + (urgente ? 'md-warn' : 'md-ok');
+    dl.className = 'match-dl-text ' + (urgente ? 'md-warn' : 'md-ok');
+    dl.textContent = 'Cierra en ' + t;
+  });
 }
 
 function updateChip(pid){
