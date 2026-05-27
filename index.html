@@ -1520,6 +1520,20 @@ const ELIM=[
   {id:"e30",etapa:"Final",        label:"3er puesto", local:"", visit:""},
   {id:"e31",etapa:"Final",        label:"Final",      local:"", visit:""},
 ];
+const FLAGS = {
+  'Argentina':'🇦🇷','Brasil':'🇧🇷','Francia':'🇫🇷','Alemania':'🇩🇪','España':'🇪🇸',
+  'Inglaterra':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Portugal':'🇵🇹','Países Bajos':'🇳🇱','Bélgica':'🇧🇪','Uruguay':'🇺🇾',
+  'México':'🇲🇽','EE.UU.':'🇺🇸','Canadá':'🇨🇦','Japón':'🇯🇵','Corea del Sur':'🇰🇷',
+  'Marruecos':'🇲🇦','Senegal':'🇸🇳','Nigeria':'🇳🇬','Ghana':'🇬🇭','Costa de Marfil':'🇨🇮',
+  'Egipto':'🇪🇬','Argelia':'🇩🇿','Camerún':'🇨🇲','Congo':'🇨🇩','Cabo Verde':'🇨🇻',
+  'Australia':'🇦🇺','Nueva Zelanda':'🇳🇿','Arabia Saudita':'🇸🇦','Irán':'🇮🇷',
+  'Qatar':'🇶🇦','Uzbekistán':'🇺🇿','Jordania':'🇯🇴',
+  'Colombia':'🇨🇴','Ecuador':'🇪🇨','Paraguay':'🇵🇾','Bolivia':'🇧🇴','Chile':'🇨🇱','Perú':'🇵🇪','Venezuela':'🇻🇪',
+  'Croacia':'🇭🇷','Polonia':'🇵🇱','Suiza':'🇨🇭','Suecia':'🇸🇪','Dinamarca':'🇩🇰','Austria':'🇦🇹',
+  'Escocia':'🏴󠁧󠁢󠁳󠁣󠁴󠁿','Rep. Checa':'🇨🇿','Turquía':'🇹🇷','Eslovenia':'🇸🇮','Bosnia':'🇧🇦','Curazao':'🇨🇼',
+  'Sudáfrica':'🇿🇦','Haití':'🇭🇹','Túnez':'🇹🇳','Panamá':'🇵🇦'
+};
+function getFlag(name){ return FLAGS[name] || '🏳️'; }
 
 // Cargar nombres de equipos eliminatorias desde Firebase
 function getElimLabel(p){
