@@ -1300,6 +1300,17 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
     <button class="nav-btn" onclick="goTab('ranking')">POSICIONES</button>
     <button class="nav-btn" id="nav-admin" onclick="goTab('admin')">ADMIN</button>
   <div class="nav-indicator" id="nav-indicator"></div></nav>
+<div id="status-bar" style="display:none">
+  <div class="sb-item">
+    <span class="sb-val" id="sb-completados">0/0</span>
+    <span class="sb-lbl">completados</span>
+  </div>
+  <div class="sb-item">
+    <span class="sb-val" id="sb-exactos">0</span>
+    <span class="sb-lbl">exactos</span>
+  </div>
+  <span class="sb-pill" id="sb-pill" style="display:none">⚡ <span id="sb-pill-text"></span></span>
+</div>
   <main class="main">
     <div id="tab-pronosticos">
       <div class="card">
@@ -1576,7 +1587,7 @@ function cargarDatos(){
     }
     if(document.getElementById('admin-camp')){document.getElementById('admin-camp').value=adminData.campeon||'';document.getElementById('admin-gol').value=adminData.goleador||'';}
   });
-  window._onValue(window._ref(window._db,'ranking'),snap=>{rankingData=snap.val()||{};renderRanking();});
+  window._onValue(window._ref(window._db,'ranking'),snap=>{rankingData=snap.val()||{};renderRanking();renderStatusBar();});
 }
 
 function saveProno(pid,side,val){
@@ -1659,6 +1670,49 @@ function recalc(){
   if(pg){if(!r.golR){pg.className='bonus-pill pill-pend';pg.textContent='9 pts';}else if(r.ptsGol){if(pg.className!=='bonus-pill pill-ok'){pg.className='bonus-pill pill-ok pill-pop';pg.addEventListener('animationend',()=>pg.classList.remove('pill-pop'),{once:true});}pg.textContent='+9 pts';}else{pg.className='bonus-pill pill-miss';pg.textContent='0 pts';}}
   guardarRanking(r.total,r.ptsGrupos,r.ptsElim,r.ptsBonus);
   validarPronósticos();
+  renderStatusBar();
+}
+
+function renderStatusBar() {
+  const bar = document.getElementById('status-bar');
+  if (!bar) return;
+
+  const todos = [...partidos, ...ELIM];
+  const total = todos.length;
+  const completados = todos.filter(p => {
+    const pr = misPronos[p.id];
+    return pr && pr.l != null && pr.v != null;
+  }).length;
+  const elComp = document.getElementById('sb-completados');
+  if (elComp) elComp.textContent = completados + '/' + total;
+
+  const exactos = document.getElementById('sb-exactos');
+  if (exactos) {
+    const r = calcPuntos();
+    exactos.textContent = r.exactos;
+  }
+
+  const pill = document.getElementById('sb-pill');
+  const pillTxt = document.getElementById('sb-pill-text');
+  const fa = getFaseActual();
+  let deadlineStr = null;
+  if (fa.estado === 'pre-torneo') {
+    const t = diasRestantes(FASES[0].plazoProno);
+    if (t) deadlineStr = 'Grupos cierra en ' + t;
+  } else if (fa.estado === 'abierto' && fa.fase) {
+    const t = diasRestantes(fa.fase.plazoProno);
+    if (t) deadlineStr = fa.fase.nombre + ' cierra en ' + t;
+  }
+  if (pill && pillTxt) {
+    if (deadlineStr) {
+      pillTxt.textContent = deadlineStr;
+      pill.style.display = 'flex';
+    } else {
+      pill.style.display = 'none';
+    }
+  }
+
+  bar.style.display = 'flex';
 }
 
 function renderFixture(){
