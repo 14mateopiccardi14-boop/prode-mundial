@@ -2373,6 +2373,8 @@ setInterval(() => {
     const r = diasRestantes(faseSiguiente.inicio);
     banners.forEach(b => { if(r) b.textContent = 'Faltan ' + r; });
   }
+  updateMatchDeadlines();
+  renderStatusBar();
 }, 60000);
 
 // ── CONTROL MANUAL DE FASES DESDE ADMIN ──────────────────────
