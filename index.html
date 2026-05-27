@@ -1270,7 +1270,14 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
     </div>
     <div class="user-area">
       <img id="hdr-avatar" class="user-avatar" src="" alt="" style="display:none">
-      <div class="pts-badge" id="hdr-pts">0 PTS</div>
+      <div class="hdr-rank" id="hdr-rank" style="display:none">
+        <div class="hdr-rank-pos" id="hdr-rank-pos">#–</div>
+        <div class="hdr-rank-info">
+          <span class="hdr-rank-pts" id="hdr-rank-pts-val">0 pts</span>
+          <span class="hdr-rank-lbl">tu posición</span>
+        </div>
+      </div>
+      <div class="pts-badge" id="hdr-pts" style="display:none">0 PTS</div>
       <div id="mini-countdown"><span class="mini-label" id="mini-label">CIERRE GRUPOS</span>&nbsp;<span id="mini-tiempo">--:--:--</span></div><button class="btn-logout" onclick="logout()">Salir</button>
     </div>
   </header>
@@ -1718,6 +1725,15 @@ function renderRanking(){
   const rows=Object.entries(rankingData).map(([uid,d])=>Object.assign({},d,{uid})).sort((a,b)=>b.total-a.total);
   if(!rows.length){tbody.innerHTML='<tr><td colspan="6" class="empty">Nadie registrado todavía.</td></tr>';return;}
   const myUid=uidKey();
+  const myPos = rows.findIndex(r => r.uid === myUid);
+  const hdrRank = document.getElementById('hdr-rank');
+  const hdrPos = document.getElementById('hdr-rank-pos');
+  const hdrPts = document.getElementById('hdr-rank-pts-val');
+  if (hdrRank && myPos !== -1) {
+    hdrPos.textContent = '#' + (myPos + 1);
+    hdrPts.textContent = (rows[myPos].total || 0) + ' pts';
+    hdrRank.style.display = 'flex';
+  }
   tbody.innerHTML='';
   rows.forEach((r,i)=>{
     const rowCls=i===0?'gold':i===1?'silver':i===2?'bronze':'';
