@@ -2573,11 +2573,6 @@ function aplicarBloqueoFases() {
   if (!gruposHabilitados) {
     bannerTexto = '🔒 Fase de grupos cerrada por el admin';
     bannerTipo  = 'cerrado';
-  } else if (estado === 'pre-torneo') {
-    const resta = diasRestantes(FASES[0].plazoProno);
-    bannerTexto = '✅ Cargá tus pronósticos de grupos antes del 11 de junio';
-    bannerTipo  = 'abierto';
-    bannerBadge = resta ? 'Cierra en ' + resta : null;
   } else if (estado === 'entre-fases' && faseSiguiente) {
     const resta = diasRestantes(faseSiguiente.inicio);
     bannerTexto = '⏳ ' + faseSiguiente.nombre + ' — se habilita el ' + (FECHA_APERTURA[faseSiguiente.id] || '—');
