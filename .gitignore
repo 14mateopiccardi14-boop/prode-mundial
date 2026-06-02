@@ -1,0 +1,15 @@
+# Claude Code / Anthropic tooling
+.claude/
+.superpowers/
+
+# Preview / test files locales
+preview.html
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
