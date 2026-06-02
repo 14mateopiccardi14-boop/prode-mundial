@@ -1472,6 +1472,8 @@ onAuthStateChanged(auth,user=>{
 <script>
 const ADMIN_EMAILS=['mateopiccardi@movistararena.com.ar','federicosegovia@movistararena.com.ar'];
 function esAdmin(){ return currentUser && ADMIN_EMAILS.includes(currentUser.email); }
+function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s==null?'':String(s); return d.innerHTML; }
+function safePhotoUrl(u){ return (typeof u==='string' && /^https:\/\//i.test(u)) ? u : ''; }
 const GRUPOS={
   A:[["México","Sudáfrica"],["Corea del Sur","Rep. Checa"],["Rep. Checa","Sudáfrica"],["México","Corea del Sur"],["Rep. Checa","México"],["Sudáfrica","Corea del Sur"]],
   B:[["Canadá","Bosnia"],["Qatar","Suiza"],["Suiza","Bosnia"],["Canadá","Qatar"],["Bosnia","Canadá"],["Suiza","Qatar"]],
@@ -1621,8 +1623,10 @@ function saveBonus(){
 }
 let _bonusTimer=null;
 function saveAdminBonus(){
+  if(!esAdmin()) return;
   clearTimeout(_bonusTimer);
   _bonusTimer=setTimeout(()=>{
+    if(!esAdmin()) return;
     adminData.campeon=document.getElementById('admin-camp').value;
     adminData.goleador=document.getElementById('admin-gol').value;
     window._set(window._ref(window._db,'admin'),adminData);
@@ -1889,10 +1893,11 @@ function renderRanking(){
   rows.forEach((r,i)=>{
     const rowCls=i===0?'gold':i===1?'silver':i===2?'bronze':'';
     const posCls=i===0?'p1':i===1?'p2':i===2?'p3':'pn';
-    const av=r.foto?'<img class="rank-avatar" src="'+r.foto+'" alt="" onerror="this.style.display=\'none\'">':'<div class="rank-avatar-ph">'+((r.nombre||'?')[0].toUpperCase())+'</div>';
+    const _foto=safePhotoUrl(r.foto);
+    const av=_foto?'<img class="rank-avatar" src="'+escapeHtml(_foto)+'" alt="" onerror="this.style.display=\'none\'">':'<div class="rank-avatar-ph">'+escapeHtml((r.nombre||'?')[0].toUpperCase())+'</div>';
     const you=r.uid===myUid?'<span class="rank-you">vos</span>':'';
     const tr=document.createElement('tr');tr.className=rowCls;
-    tr.innerHTML='<td><div class="pos-circle '+posCls+'">'+(i+1)+'</div></td><td><div class="rank-user">'+av+'<span class="rank-uname">'+(r.nombre||'—')+you+'</span></div></td><td class="pts-col">'+(r.ptsGrupos||0)+'</td><td class="pts-col">'+(r.ptsElim||0)+'</td><td class="pts-col">'+(r.ptsBonus||0)+'</td><td class="total-col">'+(r.total||0)+'</td>';
+    tr.innerHTML='<td><div class="pos-circle '+posCls+'">'+(i+1)+'</div></td><td><div class="rank-user">'+av+'<span class="rank-uname">'+escapeHtml(r.nombre||'—')+you+'</span></div></td><td class="pts-col">'+(r.ptsGrupos||0)+'</td><td class="pts-col">'+(r.ptsElim||0)+'</td><td class="pts-col">'+(r.ptsBonus||0)+'</td><td class="total-col">'+(r.total||0)+'</td>';
     tr.style.animationDelay=(i*40)+'ms';
     tr.classList.add('rank-entrada');
     tbody.appendChild(tr);
@@ -1993,6 +1998,7 @@ function renderAdminPartidos(){
   });
   cont.querySelectorAll('.score-in').forEach(inp=>{
     inp.addEventListener('change',function(){
+      if(!esAdmin()) return;
       if(!adminData.resultados)adminData.resultados={};
       const pid=this.dataset.pid,side=this.dataset.side;
       if(!adminData.resultados[pid])adminData.resultados[pid]={};
@@ -2411,6 +2417,7 @@ function renderAdminFases(){
 }
 
 function guardarFasesAdmin(){
+  if(!esAdmin()) return;
   const fasesHabilitadas = {};
   FASES_ADMIN.forEach(f => {
     const el = document.getElementById('toggle-' + f.id);
@@ -2462,6 +2469,7 @@ function renderAdminElim(){
 }
 
 function guardarElimEquipos(){
+  if(!esAdmin()) return;
   const elimEquipos = {};
   document.querySelectorAll('#admin-elim-lista input').forEach(inp => {
     const pid  = inp.dataset.pid;
@@ -2695,6 +2703,7 @@ function validarPronósticos(){
 
 // ── ELIMINAR USUARIO ─────────────────────────────────────────
 function eliminarUsuario(uid, nombre){
+  if(!esAdmin()) return;
   const nombreDec = decodeURIComponent(nombre);
   if(!confirm('¿Eliminar a ' + nombreDec + ' del prode? Se borran sus pronósticos y puntos. Esta acción no se puede deshacer.')) return;
   Promise.all([
@@ -2739,13 +2748,14 @@ function renderRRHH(){
       else if(cnt>0){ estado=cnt+'/'+totalPartidos+' partidos'; cls='rrhh-parcial'; parciales++; }
       else { estado='Sin pronósticos'; cls='rrhh-vacio'; vacios++; }
 
-      const av = r.foto
-        ? '<img class="rrhh-avatar" src="'+r.foto+'" style="width:24px;height:24px;border-radius:50%">'
-        : '<div class="rrhh-avatar">'+((r.nombre||'?')[0])+'</div>';
+      const _foto2 = safePhotoUrl(r.foto);
+      const av = _foto2
+        ? '<img class="rrhh-avatar" src="'+escapeHtml(_foto2)+'" style="width:24px;height:24px;border-radius:50%">'
+        : '<div class="rrhh-avatar">'+escapeHtml((r.nombre||'?')[0])+'</div>';
 
       const row = document.createElement('div');
       row.className='rrhh-user-row';
-      row.innerHTML=av+'<span class="rrhh-nombre">'+(r.nombre||'—')+'</span><span class="rrhh-badge '+cls+'">'+estado+'</span><span class="rrhh-pts">'+r.total+' pts</span><button onclick="eliminarUsuario(\''+uid+'\',\''+encodeURIComponent(r.nombre||'—')+'\')" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0 4px;color:var(--gris3)" title="Eliminar usuario">🗑</button>';
+      row.innerHTML=av+'<span class="rrhh-nombre">'+escapeHtml(r.nombre||'—')+'</span><span class="rrhh-badge '+cls+'">'+estado+'</span><span class="rrhh-pts">'+r.total+' pts</span><button onclick="eliminarUsuario(\''+escapeHtml(uid||'')+'\',\''+encodeURIComponent(r.nombre||'—')+'\')" style="background:none;border:none;cursor:pointer;font-size:14px;padding:0 4px;color:var(--gris3)" title="Eliminar usuario">🗑</button>';
       lista.appendChild(row);
     });
 
@@ -2757,12 +2767,13 @@ function renderRRHH(){
     // Sin acceso a pronósticos — solo mostrar ranking
     lista.innerHTML='';
     entries.forEach((r,i)=>{
-      const av = r.foto
-        ? '<img class="rrhh-avatar" src="'+r.foto+'" style="width:24px;height:24px;border-radius:50%">'
-        : '<div class="rrhh-avatar">'+((r.nombre||'?')[0])+'</div>';
+      const _foto3 = safePhotoUrl(r.foto);
+      const av = _foto3
+        ? '<img class="rrhh-avatar" src="'+escapeHtml(_foto3)+'" style="width:24px;height:24px;border-radius:50%">'
+        : '<div class="rrhh-avatar">'+escapeHtml((r.nombre||'?')[0])+'</div>';
       const row=document.createElement('div');
       row.className='rrhh-user-row';
-      row.innerHTML=av+'<span class="rrhh-nombre">'+(r.nombre||'—')+'</span><span class="rrhh-pts">'+r.total+' pts</span>';
+      row.innerHTML=av+'<span class="rrhh-nombre">'+escapeHtml(r.nombre||'—')+'</span><span class="rrhh-pts">'+r.total+' pts</span>';
       lista.appendChild(row);
     });
     if(valTotal) valTotal.textContent=total;
@@ -2780,6 +2791,7 @@ function registrarCambio(pid, side, val){
 
 // ── LIMPIAR RESULTADOS DE PRUEBA ─────────────────────────────
 function limpiarResultadosPrueba(){
+  if(!esAdmin()) return;
   if(!confirm('¿Seguro que querés borrar TODOS los resultados cargados? Esta acción no se puede deshacer.')) return;
   adminData.resultados={};
   adminData.campeon='';
