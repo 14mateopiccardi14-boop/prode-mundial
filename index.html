@@ -60,14 +60,16 @@ body{font-family:'DM Sans',sans-serif;background:var(--gris1);color:var(--negro)
 .hdr-rank-pts{font-size:12px;font-weight:700;color:var(--blanco)}
 .hdr-rank-lbl{font-size:9px;color:var(--gris3);letter-spacing:.06em;text-transform:uppercase}
 @media(max-width:480px){.hdr-rank-info{display:none}}
-#status-bar{background:var(--blanco);border-bottom:1px solid var(--gris2);padding:9px 1.25rem;display:flex;align-items:center;gap:0}
+#status-bar{background:var(--blanco);border-bottom:1px solid var(--gris2);padding:8px 1.25rem 10px;display:flex;flex-direction:column;gap:7px}
+.sb-row-stats{display:flex;align-items:center;gap:0}
 .sb-item{display:flex;align-items:center;gap:5px;padding:0 12px;border-right:1px solid var(--gris2)}
 .sb-item:first-child{padding-left:0}
 .sb-item:last-child{border-right:none}
 .sb-val{font-size:12px;font-weight:700;color:var(--negro)}
 .sb-lbl{font-size:11px;color:var(--gris3)}
-.sb-pill{margin-left:auto;font-size:10px;font-weight:700;font-family:'Bebas Neue',sans-serif;letter-spacing:.06em;background:var(--naranja-bg);color:var(--naranja);border:1px solid var(--naranja-border);padding:3px 10px;border-radius:20px;display:flex;align-items:center;gap:4px}
-@media(max-width:480px){.sb-item:nth-child(2){display:none}.sb-pill{font-size:9px;padding:2px 8px}}
+.sb-pill{font-size:13px;font-weight:600;background:var(--naranja-bg);color:var(--naranja);border:1px solid var(--naranja-border);padding:7px 14px;border-radius:8px;display:flex;align-items:center;gap:8px;line-height:1.2}
+.sb-pill #sb-pill-text{font-weight:700}
+@media(max-width:480px){.sb-pill{font-size:12px;padding:6px 12px}}
 .match-card{background:var(--blanco);border:1px solid var(--gris2);border-radius:8px;margin-bottom:6px;overflow:hidden;box-shadow:0 1px 3px rgba(0,0,0,.04);transition:box-shadow .15s}
 .match-card:last-child{margin-bottom:0}
 .match-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}
@@ -83,18 +85,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--gris1);color:var(--negro)
 .match-inputs .score-in{width:42px;height:32px;padding:0;font-size:18px}
 .match-inputs .score-in.mc-filled{border-color:var(--dorado);background:#FFFDF0}
 .match-footer{display:flex;align-items:center;justify-content:space-between;padding:5px 14px 9px;border-top:1px solid var(--gris1)}
-.match-deadline{display:flex;align-items:center;gap:5px;font-size:11px}
-.match-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0}
-.match-dot.md-warn{background:var(--naranja)}
-.match-dot.md-ok{background:var(--verde)}
-.match-dot.md-off{background:var(--gris3)}
-.match-dl-text{font-size:11px}
-.match-dl-text.md-warn{color:var(--naranja);font-weight:600}
-.match-dl-text.md-ok{color:var(--verde);font-weight:600}
-.match-dl-text.md-off{color:var(--gris3)}
 .match-pts{font-size:10px;color:var(--gris3)}
 .match-pts span{color:var(--negro2);font-weight:600}
-.match-chip-wrap{display:flex;align-items:center;gap:6px}
+.match-card.mc-locked{opacity:.55}
+.match-card.mc-locked .match-strip{background:var(--gris3)}
+.match-card.mc-locked .score-in{background:var(--gris2);color:var(--gris3);cursor:not-allowed}
+.match-card.mc-locked .match-team-name{color:var(--gris3)}
 @media(max-width:480px){.match-inputs .score-in{width:36px;font-size:16px}.match-team-name{font-size:12px}.match-flag{font-size:14px;width:20px}}
 .card:has(.match-card){padding:0.75rem 0.75rem}
 .nav{background:var(--negro2);border-bottom:1px solid rgba(200,160,32,.15);display:flex;scrollbar-width:none}
@@ -128,6 +124,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--gris1);color:var(--negro)
   background:var(--dorado);
   border-radius:2px;
   flex-shrink:0;
+}
+.card-bonus{
+  background:linear-gradient(135deg,#FFFBEB 0%,#FFF6D6 100%);
+  border:1.5px solid rgba(200,160,32,.45);
+  box-shadow:0 2px 12px rgba(200,160,32,.18);
+}
+.card-title-bonus{font-size:16px;color:var(--negro);border-bottom-width:2px;letter-spacing:.08em}
+.bonus-total-badge{
+  margin-left:auto;background:var(--negro);color:var(--dorado);
+  font-family:'Bebas Neue',sans-serif;font-size:14px;letter-spacing:.1em;
+  padding:3px 10px;border-radius:5px;
 }
 .input-field{width:100%;padding:9px 12px;border:1.5px solid var(--gris2);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:14px;color:var(--negro);background:var(--gris1);transition:border-color .2s}
 .input-field:focus{outline:none;border-color:var(--negro);background:var(--blanco)}
@@ -168,7 +175,25 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
   width:60px;
   background:linear-gradient(90deg,transparent,rgba(200,160,32,.08));
 }
+.etapa-header--prox{
+  background:linear-gradient(90deg,var(--naranja) 0%,#c2410c 100%);
+  color:var(--blanco);
+  border-left-color:#fde68a;
+  margin-top:0;
+}
+.etapa-header--prox::after{background:linear-gradient(90deg,transparent,rgba(255,255,255,.12))}
 .grupo-header{display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem}
+.grupo-toggle{cursor:pointer;user-select:none;justify-content:space-between;margin-bottom:0;padding:6px 4px 8px;border-bottom:1px solid var(--gris1);transition:background .15s}
+.grupo-toggle:hover{background:rgba(0,0,0,.02)}
+.grupo-toggle.collapsed{margin-bottom:0;border-bottom:none;padding-bottom:6px}
+.grupo-toggle-left{display:flex;align-items:center;gap:.5rem}
+.grupo-toggle-right{display:flex;align-items:center;gap:10px}
+.grupo-title{font-size:13px;font-weight:600;color:var(--gris3)}
+.grupo-progress{font-size:11px;color:var(--gris3);font-weight:700;letter-spacing:.04em;background:var(--gris1);padding:2px 8px;border-radius:10px}
+.grupo-progress.grupo-done{background:#D1FAE5;color:#065F46}
+.grupo-chevron{font-size:10px;color:var(--gris3);transition:transform .2s;display:inline-block}
+.grupo-toggle.collapsed .grupo-chevron{transform:rotate(-90deg)}
+.grupo-body{padding-top:8px}
 .grupo-badge{
   background:var(--negro);
   color:var(--dorado);
@@ -1301,20 +1326,22 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
     <button class="nav-btn" id="nav-admin" onclick="goTab('admin')">ADMIN</button>
   <div class="nav-indicator" id="nav-indicator"></div></nav>
 <div id="status-bar" style="display:none">
-  <div class="sb-item">
-    <span class="sb-val" id="sb-completados">0/0</span>
-    <span class="sb-lbl">completados</span>
+  <div class="sb-row sb-row-stats">
+    <div class="sb-item">
+      <span class="sb-val" id="sb-completados">0/0</span>
+      <span class="sb-lbl">completados</span>
+    </div>
+    <div class="sb-item">
+      <span class="sb-val" id="sb-exactos">0</span>
+      <span class="sb-lbl">exactos</span>
+    </div>
   </div>
-  <div class="sb-item">
-    <span class="sb-val" id="sb-exactos">0</span>
-    <span class="sb-lbl">exactos</span>
-  </div>
-  <span class="sb-pill" id="sb-pill" style="display:none">⚡ <span id="sb-pill-text"></span></span>
+  <span class="sb-pill" id="sb-pill" style="display:none">⏱ <span id="sb-pill-text"></span></span>
 </div>
   <main class="main">
     <div id="tab-pronosticos">
-      <div class="card">
-        <div class="card-title">Campeón y goleador</div>
+      <div class="card card-bonus">
+        <div class="card-title card-title-bonus">Campeón y goleador<span class="bonus-total-badge">+18 PTS</span></div>
         <div class="notice notice-warn">Completá antes del 11 de junio. No se puede cambiar después del inicio del torneo.</div>
         <div class="bonus-grid">
           <div class="bonus-item">
@@ -1474,19 +1501,108 @@ const ADMIN_EMAILS=['mateopiccardi@movistararena.com.ar','federicosegovia@movist
 function esAdmin(){ return currentUser && ADMIN_EMAILS.includes(currentUser.email); }
 function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s==null?'':String(s); return d.innerHTML; }
 function safePhotoUrl(u){ return (typeof u==='string' && /^https:\/\//i.test(u)) ? u : ''; }
+const DEADLINE_BUFFER_MS = 60 * 60 * 1000; // pronóstico cierra 1h antes del kickoff
+function matchDeadline(p){ return (p && p.kickoff instanceof Date) ? new Date(p.kickoff.getTime() - DEADLINE_BUFFER_MS) : null; }
+function matchClosed(p){ const d = matchDeadline(p); return d ? (new Date() >= d) : false; }
+// Para elim: sólo lo consideramos "listo para pronosticar" cuando el admin cargó ambos equipos
+function elimHasTeams(p){ const eq = adminData && adminData.elimEquipos && adminData.elimEquipos[p.id]; return !!(eq && eq.local && eq.visit); }
 const GRUPOS={
-  A:[["México","Sudáfrica"],["Corea del Sur","Rep. Checa"],["Rep. Checa","Sudáfrica"],["México","Corea del Sur"],["Rep. Checa","México"],["Sudáfrica","Corea del Sur"]],
-  B:[["Canadá","Bosnia"],["Qatar","Suiza"],["Suiza","Bosnia"],["Canadá","Qatar"],["Bosnia","Canadá"],["Suiza","Qatar"]],
-  C:[["Brasil","Marruecos"],["Haití","Escocia"],["Escocia","Marruecos"],["Brasil","Haití"],["Escocia","Brasil"],["Marruecos","Haití"]],
-  D:[["EE.UU.","Paraguay"],["Australia","Turquía"],["Turquía","Paraguay"],["EE.UU.","Australia"],["Turquía","EE.UU."],["Paraguay","Australia"]],
-  E:[["Alemania","Curazao"],["Costa de Marfil","Ecuador"],["Alemania","Costa de Marfil"],["Curazao","Ecuador"],["Ecuador","Alemania"],["Curazao","Costa de Marfil"]],
-  F:[["Países Bajos","Japón"],["Suecia","Túnez"],["Japón","Túnez"],["Países Bajos","Suecia"],["Túnez","Países Bajos"],["Japón","Suecia"]],
-  G:[["Bélgica","Egipto"],["Irán","Nueva Zelanda"],["Bélgica","Irán"],["Egipto","Nueva Zelanda"],["Nueva Zelanda","Bélgica"],["Egipto","Irán"]],
-  H:[["España","Cabo Verde"],["Arabia Saudita","Uruguay"],["España","Arabia Saudita"],["Cabo Verde","Uruguay"],["Uruguay","España"],["Cabo Verde","Arabia Saudita"]],
-  I:[["Francia","Nigeria"],["Argelia","Croacia"],["Argelia","Nigeria"],["Francia","Croacia"],["Croacia","Francia"],["Nigeria","Argelia"]],
-  J:[["Argentina","Polonia"],["Senegal","Jordania"],["Polonia","Senegal"],["Argentina","Jordania"],["Polonia","Argentina"],["Jordania","Senegal"]],
-  K:[["Portugal","Uzbekistán"],["Colombia","Congo"],["Colombia","Uzbekistán"],["Portugal","Congo"],["Uzbekistán","Portugal"],["Congo","Colombia"]],
-  L:[["Inglaterra","Eslovenia"],["Ghana","Panamá"],["Eslovenia","Ghana"],["Inglaterra","Panamá"],["Eslovenia","Inglaterra"],["Panamá","Ghana"]]
+  A:[
+    {local:"México",       visit:"Sudáfrica",    kickoff:"2026-06-11T16:00:00-03:00"},
+    {local:"Corea del Sur",visit:"Rep. Checa",   kickoff:"2026-06-11T23:00:00-03:00"},
+    {local:"Rep. Checa",   visit:"Sudáfrica",    kickoff:"2026-06-18T13:00:00-03:00"},
+    {local:"México",       visit:"Corea del Sur",kickoff:"2026-06-18T22:00:00-03:00"},
+    {local:"Rep. Checa",   visit:"México",       kickoff:"2026-06-24T22:00:00-03:00"},
+    {local:"Sudáfrica",    visit:"Corea del Sur",kickoff:"2026-06-24T22:00:00-03:00"}
+  ],
+  B:[
+    {local:"Canadá",visit:"Bosnia",kickoff:"2026-06-12T16:00:00-03:00"},
+    {local:"Qatar", visit:"Suiza", kickoff:"2026-06-13T16:00:00-03:00"},
+    {local:"Suiza", visit:"Bosnia",kickoff:"2026-06-18T16:00:00-03:00"},
+    {local:"Canadá",visit:"Qatar", kickoff:"2026-06-18T19:00:00-03:00"},
+    {local:"Suiza", visit:"Canadá",kickoff:"2026-06-24T16:00:00-03:00"},
+    {local:"Bosnia",visit:"Qatar", kickoff:"2026-06-24T16:00:00-03:00"}
+  ],
+  C:[
+    {local:"Brasil",   visit:"Marruecos",kickoff:"2026-06-13T19:00:00-03:00"},
+    {local:"Haití",    visit:"Escocia",  kickoff:"2026-06-13T22:00:00-03:00"},
+    {local:"Escocia",  visit:"Marruecos",kickoff:"2026-06-19T19:00:00-03:00"},
+    {local:"Brasil",   visit:"Haití",    kickoff:"2026-06-19T21:30:00-03:00"},
+    {local:"Escocia",  visit:"Brasil",   kickoff:"2026-06-24T19:00:00-03:00"},
+    {local:"Marruecos",visit:"Haití",    kickoff:"2026-06-24T19:00:00-03:00"}
+  ],
+  D:[
+    {local:"EE.UU.",   visit:"Paraguay", kickoff:"2026-06-12T22:00:00-03:00"},
+    {local:"Australia",visit:"Turquía",  kickoff:"2026-06-14T01:00:00-03:00"},
+    {local:"EE.UU.",   visit:"Australia",kickoff:"2026-06-19T16:00:00-03:00"},
+    {local:"Turquía",  visit:"Paraguay", kickoff:"2026-06-20T00:00:00-03:00"},
+    {local:"Turquía",  visit:"EE.UU.",   kickoff:"2026-06-25T23:00:00-03:00"},
+    {local:"Paraguay", visit:"Australia",kickoff:"2026-06-25T23:00:00-03:00"}
+  ],
+  E:[
+    {local:"Alemania",       visit:"Curazao",        kickoff:"2026-06-14T14:00:00-03:00"},
+    {local:"Costa de Marfil",visit:"Ecuador",        kickoff:"2026-06-14T20:00:00-03:00"},
+    {local:"Alemania",       visit:"Costa de Marfil",kickoff:"2026-06-20T17:00:00-03:00"},
+    {local:"Ecuador",        visit:"Curazao",        kickoff:"2026-06-20T21:00:00-03:00"},
+    {local:"Curazao",        visit:"Costa de Marfil",kickoff:"2026-06-25T17:00:00-03:00"},
+    {local:"Ecuador",        visit:"Alemania",       kickoff:"2026-06-25T17:00:00-03:00"}
+  ],
+  F:[
+    {local:"Países Bajos",visit:"Japón",       kickoff:"2026-06-14T17:00:00-03:00"},
+    {local:"Suecia",      visit:"Túnez",       kickoff:"2026-06-14T23:00:00-03:00"},
+    {local:"Países Bajos",visit:"Suecia",      kickoff:"2026-06-20T14:00:00-03:00"},
+    {local:"Túnez",       visit:"Japón",       kickoff:"2026-06-21T01:00:00-03:00"},
+    {local:"Japón",       visit:"Suecia",      kickoff:"2026-06-25T20:00:00-03:00"},
+    {local:"Túnez",       visit:"Países Bajos",kickoff:"2026-06-25T20:00:00-03:00"}
+  ],
+  G:[
+    {local:"Bélgica",      visit:"Egipto",       kickoff:"2026-06-15T16:00:00-03:00"},
+    {local:"Irán",         visit:"Nueva Zelanda",kickoff:"2026-06-15T22:00:00-03:00"},
+    {local:"Bélgica",      visit:"Irán",         kickoff:"2026-06-21T16:00:00-03:00"},
+    {local:"Nueva Zelanda",visit:"Egipto",       kickoff:"2026-06-21T22:00:00-03:00"},
+    {local:"Egipto",       visit:"Irán",         kickoff:"2026-06-27T00:00:00-03:00"},
+    {local:"Nueva Zelanda",visit:"Bélgica",      kickoff:"2026-06-27T00:00:00-03:00"}
+  ],
+  H:[
+    {local:"España",        visit:"Cabo Verde",    kickoff:"2026-06-15T13:00:00-03:00"},
+    {local:"Arabia Saudita",visit:"Uruguay",       kickoff:"2026-06-15T19:00:00-03:00"},
+    {local:"España",        visit:"Arabia Saudita",kickoff:"2026-06-21T13:00:00-03:00"},
+    {local:"Uruguay",       visit:"Cabo Verde",    kickoff:"2026-06-21T19:00:00-03:00"},
+    {local:"Cabo Verde",    visit:"Arabia Saudita",kickoff:"2026-06-26T21:00:00-03:00"},
+    {local:"Uruguay",       visit:"España",        kickoff:"2026-06-26T21:00:00-03:00"}
+  ],
+  I:[
+    {local:"Francia",visit:"Senegal",kickoff:"2026-06-16T16:00:00-03:00"},
+    {local:"Irak",   visit:"Noruega",kickoff:"2026-06-16T19:00:00-03:00"},
+    {local:"Francia",visit:"Irak",   kickoff:"2026-06-22T18:00:00-03:00"},
+    {local:"Noruega",visit:"Senegal",kickoff:"2026-06-22T21:00:00-03:00"},
+    {local:"Noruega",visit:"Francia",kickoff:"2026-06-26T16:00:00-03:00"},
+    {local:"Senegal",visit:"Irak",   kickoff:"2026-06-26T16:00:00-03:00"}
+  ],
+  J:[
+    {local:"Argentina",visit:"Argelia",  kickoff:"2026-06-16T22:00:00-03:00"},
+    {local:"Austria",  visit:"Jordania", kickoff:"2026-06-17T01:00:00-03:00"},
+    {local:"Argentina",visit:"Austria",  kickoff:"2026-06-22T14:00:00-03:00"},
+    {local:"Jordania", visit:"Argelia",  kickoff:"2026-06-23T00:00:00-03:00"},
+    {local:"Argelia",  visit:"Austria",  kickoff:"2026-06-27T23:00:00-03:00"},
+    {local:"Jordania", visit:"Argentina",kickoff:"2026-06-27T23:00:00-03:00"}
+  ],
+  K:[
+    {local:"Portugal",  visit:"RD Congo",   kickoff:"2026-06-17T14:00:00-03:00"},
+    {local:"Uzbekistán",visit:"Colombia",   kickoff:"2026-06-17T23:00:00-03:00"},
+    {local:"Portugal",  visit:"Uzbekistán", kickoff:"2026-06-23T14:00:00-03:00"},
+    {local:"Colombia",  visit:"RD Congo",   kickoff:"2026-06-23T23:00:00-03:00"},
+    {local:"Colombia",  visit:"Portugal",   kickoff:"2026-06-27T20:30:00-03:00"},
+    {local:"RD Congo",  visit:"Uzbekistán", kickoff:"2026-06-27T20:30:00-03:00"}
+  ],
+  L:[
+    {local:"Inglaterra",visit:"Croacia",   kickoff:"2026-06-17T17:00:00-03:00"},
+    {local:"Ghana",     visit:"Panamá",    kickoff:"2026-06-17T20:00:00-03:00"},
+    {local:"Inglaterra",visit:"Ghana",     kickoff:"2026-06-23T17:00:00-03:00"},
+    {local:"Panamá",    visit:"Croacia",   kickoff:"2026-06-23T20:00:00-03:00"},
+    {local:"Panamá",    visit:"Inglaterra",kickoff:"2026-06-27T18:00:00-03:00"},
+    {local:"Croacia",   visit:"Ghana",     kickoff:"2026-06-27T18:00:00-03:00"}
+  ]
 };
 const ELIM=[
   {id:"e0", etapa:"Dieciseisavos",label:"Partido 1",  local:"", visit:""},
@@ -1522,12 +1638,31 @@ const ELIM=[
   {id:"e30",etapa:"Final",        label:"3er puesto", local:"", visit:""},
   {id:"e31",etapa:"Final",        label:"Final",      local:"", visit:""},
 ];
+// Kickoffs oficiales FIFA 2026 (hora Argentina UTC-3) — equipos TBD por admin tras grupos
+const ELIM_KICKOFFS = {
+  // Dieciseisavos (28 jun – 3 jul)
+  "e0":"2026-06-28T16:00:00-03:00","e1":"2026-06-29T14:00:00-03:00","e2":"2026-06-29T17:30:00-03:00","e3":"2026-06-29T22:00:00-03:00",
+  "e4":"2026-06-30T14:00:00-03:00","e5":"2026-06-30T18:00:00-03:00","e6":"2026-06-30T22:00:00-03:00","e7":"2026-07-01T13:00:00-03:00",
+  "e8":"2026-07-01T17:00:00-03:00","e9":"2026-07-01T21:00:00-03:00","e10":"2026-07-02T16:00:00-03:00","e11":"2026-07-02T20:00:00-03:00",
+  "e12":"2026-07-03T00:00:00-03:00","e13":"2026-07-03T15:00:00-03:00","e14":"2026-07-03T19:00:00-03:00","e15":"2026-07-03T22:30:00-03:00",
+  // Octavos (4 – 7 jul)
+  "e16":"2026-07-04T14:00:00-03:00","e17":"2026-07-04T18:00:00-03:00","e18":"2026-07-05T17:00:00-03:00","e19":"2026-07-05T21:00:00-03:00",
+  "e20":"2026-07-06T16:00:00-03:00","e21":"2026-07-06T21:00:00-03:00","e22":"2026-07-07T13:00:00-03:00","e23":"2026-07-07T17:00:00-03:00",
+  // Cuartos (9 – 11 jul)
+  "e24":"2026-07-09T17:00:00-03:00","e25":"2026-07-10T16:00:00-03:00","e26":"2026-07-11T18:00:00-03:00","e27":"2026-07-11T22:00:00-03:00",
+  // Semis (14 – 15 jul)
+  "e28":"2026-07-14T16:00:00-03:00","e29":"2026-07-15T16:00:00-03:00",
+  // 3er puesto (18 jul) y Final (19 jul)
+  "e30":"2026-07-18T18:00:00-03:00","e31":"2026-07-19T16:00:00-03:00"
+};
+ELIM.forEach(p => { if (ELIM_KICKOFFS[p.id]) p.kickoff = new Date(ELIM_KICKOFFS[p.id]); });
 const FLAGS = {
   'Argentina':'🇦🇷','Brasil':'🇧🇷','Francia':'🇫🇷','Alemania':'🇩🇪','España':'🇪🇸',
   'Inglaterra':'🏴󠁧󠁢󠁥󠁮󠁧󠁿','Portugal':'🇵🇹','Países Bajos':'🇳🇱','Bélgica':'🇧🇪','Uruguay':'🇺🇾',
   'México':'🇲🇽','EE.UU.':'🇺🇸','Canadá':'🇨🇦','Japón':'🇯🇵','Corea del Sur':'🇰🇷',
   'Marruecos':'🇲🇦','Senegal':'🇸🇳','Nigeria':'🇳🇬','Ghana':'🇬🇭','Costa de Marfil':'🇨🇮',
-  'Egipto':'🇪🇬','Argelia':'🇩🇿','Camerún':'🇨🇲','Congo':'🇨🇩','Cabo Verde':'🇨🇻',
+  'Egipto':'🇪🇬','Argelia':'🇩🇿','Camerún':'🇨🇲','Congo':'🇨🇩','RD Congo':'🇨🇩','Cabo Verde':'🇨🇻',
+  'Irak':'🇮🇶','Noruega':'🇳🇴',
   'Australia':'🇦🇺','Nueva Zelanda':'🇳🇿','Arabia Saudita':'🇸🇦','Irán':'🇮🇷',
   'Qatar':'🇶🇦','Uzbekistán':'🇺🇿','Jordania':'🇯🇴',
   'Colombia':'🇨🇴','Ecuador':'🇪🇨','Paraguay':'🇵🇾','Bolivia':'🇧🇴','Chile':'🇨🇱','Perú':'🇵🇪','Venezuela':'🇻🇪',
@@ -1553,7 +1688,7 @@ function getElimVisit(p){
 }
 let partidos=[];
 let pid2=0;
-Object.keys(GRUPOS).forEach(g=>{GRUPOS[g].forEach(([l,v])=>{partidos.push({id:String(pid2++),grupo:g,local:l,visit:v,esGrupo:true});});});
+Object.keys(GRUPOS).forEach(g=>{GRUPOS[g].forEach(m=>{partidos.push({id:String(pid2++),grupo:g,local:m.local,visit:m.visit,kickoff:new Date(m.kickoff),esGrupo:true});});});
 
 let currentUser=null,misPronos={},adminData={},rankingData={};
 
@@ -1608,6 +1743,8 @@ function cargarDatos(){
 
 function saveProno(pid,side,val){
   const uid=uidKey();if(!uid)return;
+  const p=partidos.find(x=>x.id===pid)||ELIM.find(x=>x.id===pid);
+  if(p&&matchClosed(p)){ mostrarToast('Pronóstico cerrado — el partido empieza en menos de 1h'); return; }
   const upd={};
   upd['usuarios/'+uid+'/pronos/'+pid+'/'+side]=val===''?null:parseInt(val);
   window._update(window._ref(window._db),upd);
@@ -1620,6 +1757,7 @@ function saveBonus(){
   const uid=uidKey();if(!uid)return;
   window._set(window._ref(window._db,'usuarios/'+uid+'/bonus'),{campeon:document.getElementById('inp-campeon').value,goleador:document.getElementById('inp-goleador').value});
   recalc();
+  setTimeout(checkAllPredictionsComplete, 300);
 }
 let _bonusTimer=null;
 function saveAdminBonus(){
@@ -1715,15 +1853,30 @@ function renderStatusBar() {
   const fa = getFaseActual();
   let deadlineStr = null;
   const mesesSB = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-  if (fa.estado === 'pre-torneo') {
-    const d = FASES[0].plazoProno;
+
+  // Próximo partido que cierra (grupos siempre; elim solo si admin cargó equipos)
+  const ahora = new Date();
+  const candidatos = [
+    ...partidos.filter(p => p.kickoff instanceof Date && matchDeadline(p) > ahora),
+    ...ELIM.filter(p => p.kickoff instanceof Date && matchDeadline(p) > ahora && elimHasTeams(p))
+  ];
+  const proximo = candidatos.sort((a,b) => a.kickoff - b.kickoff)[0];
+
+  if (proximo) {
+    const d = matchDeadline(proximo);
     const t = diasRestantes(d);
-    if (t) deadlineStr = 'Grupos · ' + d.getDate() + ' ' + mesesSB[d.getMonth()] + ' · en ' + t;
+    const esElim = !proximo.esGrupo;
+    const localName = esElim ? getElimLocal(proximo) : proximo.local;
+    const visitName = esElim ? getElimVisit(proximo) : proximo.visit;
+    const nombre = localName + ' vs ' + visitName;
+    if (t) deadlineStr = nombre + ' · ' + d.getDate() + ' ' + mesesSB[d.getMonth()] + ' · en ' + t;
   } else if (fa.estado === 'abierto' && fa.fase) {
+    // Sin partidos de grupos abiertos → mostrar deadline de la fase elim activa
     const d = fa.fase.plazoProno;
     const t = diasRestantes(d);
     if (t) deadlineStr = fa.fase.nombre + ' · ' + d.getDate() + ' ' + mesesSB[d.getMonth()] + ' · en ' + t;
   }
+
   if (pill && pillTxt) {
     if (deadlineStr) {
       pillTxt.textContent = deadlineStr;
@@ -1736,49 +1889,123 @@ function renderStatusBar() {
   bar.style.display = 'flex';
 }
 
+function buildMatchCard(p, localName, visitName, esElim, opts) {
+  opts = opts || {};
+  const pr = misPronos[p.id] || {};
+  const lVal = pr.l != null ? pr.l : '';
+  const vVal = pr.v != null ? pr.v : '';
+  const hasPron = lVal !== '' && vVal !== '';
+  const mcClass = hasPron ? 'mc-saved' : 'mc-pending';
+  const filledClass = hasPron ? 'mc-filled' : '';
+  const ptsLabel = esElim
+    ? 'Exacto <span>+4</span> · Ganador <span>+2</span>'
+    : 'Exacto <span>+3</span> · Ganador <span>+1</span>';
+  // staticChip: usado por la sección "Próximos a cerrar" para evitar duplicar el id chip-{pid}
+  const chipMarkup = opts.staticChip
+    ? '<div class="chip c-pend">?</div>'
+    : '<div class="chip c-pend" id="chip-' + p.id + '">?</div>';
+
+  const card = document.createElement('div');
+  card.className = 'match-card ' + mcClass;
+  card.innerHTML =
+    '<div class="match-strip"></div>' +
+    '<div class="match-body">' +
+      '<div class="match-teams">' +
+        '<div class="match-team"><span class="match-flag">' + getFlag(localName) + '</span><span class="match-team-name">' + escapeHtml(localName) + '</span></div>' +
+        '<div class="match-team"><span class="match-flag">' + getFlag(visitName) + '</span><span class="match-team-name">' + escapeHtml(visitName) + '</span></div>' +
+      '</div>' +
+      '<div class="match-inputs">' +
+        '<input class="score-in ' + filledClass + '" type="number" min="0" max="20" value="' + lVal + '" placeholder="—" data-pid="' + p.id + '" data-side="l">' +
+        '<input class="score-in ' + filledClass + '" type="number" min="0" max="20" value="' + vVal + '" placeholder="—" data-pid="' + p.id + '" data-side="v">' +
+      '</div>' +
+    '</div>' +
+    '<div class="match-footer">' +
+      '<div class="match-pts">' + ptsLabel + '</div>' +
+      chipMarkup +
+    '</div>';
+  return card;
+}
+
+function renderProximos(cont) {
+  const PROXIMOS_N = 4;
+  const ahora = new Date();
+  const candidatos = [
+    ...partidos.filter(p => p.kickoff instanceof Date && matchDeadline(p) > ahora),
+    // Elim: sólo si admin cargó los equipos (sino mostraríamos "Partido 1 vs Visitante")
+    ...ELIM.filter(p => p.kickoff instanceof Date && matchDeadline(p) > ahora && elimHasTeams(p))
+  ];
+  const proximos = candidatos.sort((a, b) => a.kickoff - b.kickoff).slice(0, PROXIMOS_N);
+  if (!proximos.length) return;
+
+  const h = document.createElement('div');
+  h.className = 'etapa-header etapa-header--prox';
+  h.textContent = '⏱  PRÓXIMOS A CERRAR';
+  cont.appendChild(h);
+
+  const card = document.createElement('div');
+  card.className = 'card';
+  proximos.forEach(p => {
+    const esElim = !p.esGrupo;
+    const localName = esElim ? getElimLocal(p) : p.local;
+    const visitName = esElim ? getElimVisit(p) : p.visit;
+    card.appendChild(buildMatchCard(p, localName, visitName, esElim, {staticChip: true}));
+  });
+  cont.appendChild(card);
+}
+
 function renderFixture(){
   const cont=document.getElementById('fixture-container');cont.innerHTML='';
 
-  function buildMatchCard(p, localName, visitName, esElim) {
-    const pr = misPronos[p.id] || {};
-    const lVal = pr.l != null ? pr.l : '';
-    const vVal = pr.v != null ? pr.v : '';
-    const hasPron = lVal !== '' && vVal !== '';
-    const esc=s=>{const d=document.createElement('span');d.textContent=s;return d.innerHTML;};
-    const mcClass = hasPron ? 'mc-saved' : 'mc-pending';
-    const filledClass = hasPron ? 'mc-filled' : '';
-    const ptsLabel = esElim
-      ? 'Exacto <span>+4</span> · Ganador <span>+2</span>'
-      : 'Exacto <span>+3</span> · Ganador <span>+1</span>';
-
-    const card = document.createElement('div');
-    card.className = 'match-card ' + mcClass;
-    card.innerHTML =
-      '<div class="match-strip"></div>' +
-      '<div class="match-body">' +
-        '<div class="match-teams">' +
-          '<div class="match-team"><span class="match-flag">' + getFlag(localName) + '</span><span class="match-team-name">' + esc(localName) + '</span></div>' +
-          '<div class="match-team"><span class="match-flag">' + getFlag(visitName) + '</span><span class="match-team-name">' + esc(visitName) + '</span></div>' +
-        '</div>' +
-        '<div class="match-inputs">' +
-          '<input class="score-in ' + filledClass + '" type="number" min="0" max="20" value="' + lVal + '" placeholder="—" data-pid="' + p.id + '" data-side="l">' +
-          '<input class="score-in ' + filledClass + '" type="number" min="0" max="20" value="' + vVal + '" placeholder="—" data-pid="' + p.id + '" data-side="v">' +
-        '</div>' +
-      '</div>' +
-      '<div class="match-footer">' +
-        '<div class="match-pts">' + ptsLabel + '</div>' +
-        '<div class="chip c-pend" id="chip-' + p.id + '">?</div>' +
-      '</div>';
-    return card;
-  }
+  renderProximos(cont);
 
   const hg=document.createElement('div');hg.className='etapa-header';hg.textContent='FASE DE GRUPOS';cont.appendChild(hg);
   Object.keys(GRUPOS).forEach(g=>{
-    const card=document.createElement('div');card.className='card';
-    card.innerHTML='<div class="grupo-header"><div class="grupo-badge">G'+g+'</div><span style="font-size:13px;font-weight:600;color:var(--gris3)">Grupo '+g+'</span></div>';
-    GRUPOS[g].forEach(([loc,vis])=>{
-      const p=partidos.find(x=>x.grupo===g&&x.local===loc&&x.visit===vis);if(!p)return;
-      card.appendChild(buildMatchCard(p, loc, vis, false));
+    const card=document.createElement('div');card.className='card grupo-card';
+    // Contar completados en este grupo
+    const total = GRUPOS[g].length;
+    let completos = 0;
+    GRUPOS[g].forEach(m=>{
+      const p = partidos.find(x=>x.grupo===g&&x.local===m.local&&x.visit===m.visit);
+      if(p && misPronos[p.id] && misPronos[p.id].l!=null && misPronos[p.id].v!=null) completos++;
+    });
+    const progresoBadge = completos===total
+      ? '<span class="grupo-progress grupo-done">✓ ' + total + '/' + total + '</span>'
+      : '<span class="grupo-progress">' + completos + '/' + total + '</span>';
+    // Estado de colapso: default Grupo J abierto, resto cerrado. Persistido en localStorage.
+    const lsKey = 'prode_grupo_' + g + '_open';
+    const stored = localStorage.getItem(lsKey);
+    const abierto = stored === null ? (g === 'J') : (stored === '1');
+    const header = document.createElement('div');
+    header.className = 'grupo-header grupo-toggle' + (abierto ? '' : ' collapsed');
+    header.innerHTML =
+      '<div class="grupo-toggle-left">' +
+        '<div class="grupo-badge">G' + g + '</div>' +
+        '<span class="grupo-title">Grupo ' + g + '</span>' +
+      '</div>' +
+      '<div class="grupo-toggle-right">' +
+        progresoBadge +
+        '<span class="grupo-chevron">▼</span>' +
+      '</div>';
+    card.appendChild(header);
+    const body = document.createElement('div');
+    body.className = 'grupo-body';
+    if (!abierto) body.style.display = 'none';
+    GRUPOS[g].forEach(m=>{
+      const p=partidos.find(x=>x.grupo===g&&x.local===m.local&&x.visit===m.visit);if(!p)return;
+      body.appendChild(buildMatchCard(p, m.local, m.visit, false));
+    });
+    card.appendChild(body);
+    header.addEventListener('click', ()=>{
+      const isOpen = !header.classList.contains('collapsed');
+      if (isOpen) {
+        body.style.display = 'none';
+        header.classList.add('collapsed');
+        localStorage.setItem(lsKey, '0');
+      } else {
+        body.style.display = '';
+        header.classList.remove('collapsed');
+        localStorage.setItem(lsKey, '1');
+      }
     });
     cont.appendChild(card);
   });
@@ -1819,47 +2046,19 @@ function renderFixture(){
 }
 
 function updateMatchDeadlines() {
-  const fa = getFaseActual();
-  let deadline = null;
-
-  if (fa.estado === 'pre-torneo') {
-    deadline = FASES[0].plazoProno;
-  } else if (fa.estado === 'abierto' && fa.fase) {
-    deadline = fa.fase.plazoProno;
-  }
-
-  const todos = [...partidos, ...ELIM];
-  todos.forEach(p => {
-    const dot = document.getElementById('dot-' + p.id);
-    const dl = document.getElementById('dl-' + p.id);
-    if (!dot || !dl) return;
-    if (!deadline) {
-      dot.className = 'match-dot md-off';
-      dl.className = 'match-dl-text md-off';
-      dl.textContent = 'Cerrado';
-      return;
-    }
-    const t = diasRestantes(deadline);
-    if (!t) {
-      dot.className = 'match-dot md-off';
-      dl.className = 'match-dl-text md-off';
-      dl.textContent = 'Cerrado';
-      return;
-    }
-    const diff = deadline - new Date();
-    const urgente = diff < 2 * 60 * 60 * 1000;
-    dot.className = 'match-dot ' + (urgente ? 'md-warn' : 'md-ok');
-    dl.className = 'match-dl-text ' + (urgente ? 'md-warn' : 'md-ok');
-    const meses = ['ene','feb','mar','abr','may','jun','jul','ago','sep','oct','nov','dic'];
-    const fechaStr = deadline.getDate() + ' ' + meses[deadline.getMonth()];
-    dl.textContent = 'Cierra el ' + fechaStr + ' · en ' + t;
-  });
+  // El texto per-card se removió en commit 598ef65 — ahora la única tarea
+  // es re-evaluar el lock por partido (kickoff − 1h). Lo hace aplicarBloqueoFases.
+  if (typeof aplicarBloqueoFases === 'function') aplicarBloqueoFases();
 }
 
 function updateChip(pid){
   const chip=document.getElementById('chip-'+pid);if(!chip)return;
   const real=adminData.resultados&&adminData.resultados[pid];
-  if(!real){chip.className='chip c-pend';chip.textContent='?';return;}
+  if(!real){
+    const p=partidos.find(x=>x.id===pid)||ELIM.find(x=>x.id===pid);
+    if(p&&matchClosed(p)){chip.className='chip c-pend';chip.textContent='🔒';return;}
+    chip.className='chip c-pend';chip.textContent='?';return;
+  }
   const pr=misPronos[pid];
   if(!pr||pr.l==null||pr.v==null){chip.className='chip c-pend';chip.textContent='—';return;}
   const pL=parseInt(pr.l),pV=parseInt(pr.v),rL=parseInt(real.l),rV=parseInt(real.v);
@@ -2261,11 +2460,24 @@ function aplicarBloqueoFases() {
     const card = badge.closest('.card');
     if (!card) return;
     card.classList.remove('fase-bloqueada');
-    card.querySelectorAll('.score-in').forEach(i => i.disabled = false);
     card.querySelectorAll('.msg-fase').forEach(m => m.remove());
     if (!gruposHabilitados) {
+      // Override admin: bloquea TODOS los partidos del grupo
       card.classList.add('fase-bloqueada');
       card.querySelectorAll('.score-in').forEach(i => i.disabled = true);
+      card.querySelectorAll('.match-card').forEach(mc => mc.classList.add('mc-locked'));
+    } else {
+      // Por-partido: cerrar sólo los que ya pasaron deadline (kickoff − 1h)
+      card.querySelectorAll('.match-card').forEach(mc => {
+        const inp = mc.querySelector('.score-in[data-pid]');
+        if (!inp) return;
+        const pid = inp.dataset.pid;
+        const p = partidos.find(x => x.id === pid);
+        const cerrado = p ? matchClosed(p) : false;
+        mc.classList.toggle('mc-locked', cerrado);
+        mc.querySelectorAll('.score-in').forEach(i => i.disabled = cerrado);
+        updateChip(pid);
+      });
     }
   });
 
@@ -2310,6 +2522,7 @@ function aplicarBloqueoFases() {
     if (!habilitada) {
       card.classList.add('fase-bloqueada');
       card.querySelectorAll('.score-in').forEach(i => i.disabled = true);
+      card.querySelectorAll('.match-card').forEach(mc => mc.classList.add('mc-locked'));
       const msg = document.createElement('div');
       msg.className = 'msg-fase';
       msg.style.cssText = 'position:relative;z-index:11;text-align:center;padding:14px;font-size:12px;color:var(--gris3);font-style:italic';
@@ -2319,6 +2532,17 @@ function aplicarBloqueoFases() {
       h.textContent = textoBase + ' 🔒';
     } else {
       h.textContent = textoBase + ' ✅';
+      // Per-partido: cerrar sólo los que pasaron deadline (kickoff − 1h)
+      card.querySelectorAll('.match-card').forEach(mc => {
+        const inp = mc.querySelector('.score-in[data-pid]');
+        if (!inp) return;
+        const pid = inp.dataset.pid;
+        const p = ELIM.find(x => x.id === pid);
+        const cerrado = p ? matchClosed(p) : false;
+        mc.classList.toggle('mc-locked', cerrado);
+        mc.querySelectorAll('.score-in').forEach(i => i.disabled = cerrado);
+        updateChip(pid);
+      });
     }
   });
 
@@ -2699,6 +2923,44 @@ function validarPronósticos(){
   } else {
     banner.style.display='none';
   }
+  checkAllPredictionsComplete();
+}
+
+function checkAllPredictionsComplete(){
+  if(!currentUser) return;
+  // Grupos: todos
+  const gruposOk = partidos.every(p => {
+    const pr = misPronos[p.id];
+    return pr && pr.l!=null && pr.v!=null;
+  });
+  // Elim: solo los que tienen equipos cargados por admin
+  const elimDisponibles = ELIM.filter(p => elimHasTeams(p));
+  const elimOk = elimDisponibles.every(p => {
+    const pr = misPronos[p.id];
+    return pr && pr.l!=null && pr.v!=null;
+  });
+  // Bonus
+  const cE = document.getElementById('inp-campeon');
+  const gE = document.getElementById('inp-goleador');
+  const bonusOk = cE && cE.value && gE && gE.value;
+
+  const all = gruposOk && elimOk && bonusOk;
+  const flag = 'prode_celebrated_' + currentUser.email;
+
+  if(all){
+    if(localStorage.getItem(flag)) return; // ya celebrado
+    const total = partidos.length + elimDisponibles.length + 2;
+    mostrarToast('🎉 ¡Todos cargados! ' + total + ' pronósticos listos. ¡Suerte!', 4000);
+    // Confetti multi-burst centrado
+    const cx = window.innerWidth/2, cy = window.innerHeight/3;
+    for(let i=0;i<6;i++){
+      setTimeout(()=>lanzarConfetti(cx + (Math.random()*220-110), cy + (Math.random()*80)), i*180);
+    }
+    localStorage.setItem(flag, Date.now().toString());
+  } else {
+    // Si dejó de estar completo (borró algún proono), limpiar flag para que se vuelva a celebrar
+    localStorage.removeItem(flag);
+  }
 }
 
 // ── ELIMINAR USUARIO ─────────────────────────────────────────
@@ -2792,15 +3054,24 @@ function registrarCambio(pid, side, val){
 // ── LIMPIAR RESULTADOS DE PRUEBA ─────────────────────────────
 function limpiarResultadosPrueba(){
   if(!esAdmin()) return;
-  if(!confirm('¿Seguro que querés borrar TODOS los resultados cargados? Esta acción no se puede deshacer.')) return;
+  if(!confirm('¿Seguro que querés borrar TODOS los resultados cargados? También se resetea el ranking de todos los participantes. Esta acción no se puede deshacer.')) return;
   adminData.resultados={};
   adminData.campeon='';
   adminData.goleador='';
   window._set(window._ref(window._db,'admin'), adminData);
+  // Cada usuario tiene su propio entry en ranking/{uid} con su total calculado.
+  // Sin esto, los entries viejos quedan con puntos sumados hasta que cada usuario reentre.
+  const uids = Object.keys(rankingData || {});
+  if (uids.length) {
+    Promise.all(uids.map(uid => window._remove(window._ref(window._db,'ranking/'+uid))))
+      .then(()=>{ rankingData = {}; renderRanking(); mostrarToast('✅ Resultados y ranking reseteados ('+uids.length+' usuarios)'); })
+      .catch(()=>mostrarToast('⚠️ Algunos entries de ranking no se pudieron borrar'));
+  } else {
+    mostrarToast('✅ Resultados borrados');
+  }
   document.getElementById('admin-camp').value='';
   document.getElementById('admin-gol').value='';
   renderAdminPartidos();
-  mostrarToast('✅ Resultados borrados');
 }
 
 </script>
