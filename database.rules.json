@@ -1,0 +1,56 @@
+{
+  "rules": {
+    ".read": false,
+    ".write": false,
+
+    "admin": {
+      ".read": "auth != null && auth.token.email.endsWith('@movistararena.com.ar')",
+      ".write": "auth != null && (auth.token.email === 'mateopiccardi@movistararena.com.ar' || auth.token.email === 'federicosegovia@movistararena.com.ar')"
+    },
+
+    "ranking": {
+      ".read": "auth != null && auth.token.email.endsWith('@movistararena.com.ar')",
+      "$uid": {
+        ".write": "auth != null && (auth.uid === $uid || auth.token.email === 'mateopiccardi@movistararena.com.ar' || auth.token.email === 'federicosegovia@movistararena.com.ar')",
+        ".validate": "newData.hasChildren(['nombre','total']) || !newData.exists()",
+        "nombre":    { ".validate": "newData.isString() && newData.val().length <= 100" },
+        "foto":      { ".validate": "newData.isString() && (newData.val() === '' || newData.val().beginsWith('https://'))" },
+        "total":     { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 500" },
+        "ptsGrupos": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 500" },
+        "ptsElim":   { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 500" },
+        "ptsBonus":  { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
+        "ts":        { ".validate": "newData.isNumber()" },
+        "$other":    { ".validate": false }
+      }
+    },
+
+    "usuarios": {
+      ".read": "auth != null && (auth.token.email === 'mateopiccardi@movistararena.com.ar' || auth.token.email === 'federicosegovia@movistararena.com.ar')",
+      "$uid": {
+        ".read":  "auth != null && (auth.uid === $uid || auth.token.email === 'mateopiccardi@movistararena.com.ar' || auth.token.email === 'federicosegovia@movistararena.com.ar')",
+        ".write": "auth != null && (auth.uid === $uid || auth.token.email === 'mateopiccardi@movistararena.com.ar' || auth.token.email === 'federicosegovia@movistararena.com.ar')",
+        "pronos": {
+          "$pid": {
+            "l": { ".validate": "newData.val() === null || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 50)" },
+            "v": { ".validate": "newData.val() === null || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 50)" },
+            "$other": { ".validate": false }
+          }
+        },
+        "bonus": {
+          "campeon":  { ".validate": "newData.isString() && newData.val().length <= 50" },
+          "goleador": { ".validate": "newData.isString() && newData.val().length <= 100" },
+          "$other":   { ".validate": false }
+        },
+        "historial": {
+          "$entry": {
+            ".validate": "newData.hasChildren(['val','ts'])",
+            "val":    { ".validate": "newData.val() === null || newData.isNumber() || newData.isString()" },
+            "ts":     { ".validate": "newData.isNumber()" },
+            "nombre": { ".validate": "newData.isString() && newData.val().length <= 100" },
+            "$other": { ".validate": false }
+          }
+        }
+      }
+    }
+  }
+}
