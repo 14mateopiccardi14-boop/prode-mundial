@@ -1342,7 +1342,7 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
     <div id="tab-pronosticos">
       <div class="card card-bonus">
         <div class="card-title card-title-bonus">Campeón y goleador<span class="bonus-total-badge">+18 PTS</span></div>
-        <div class="notice notice-warn">Completá antes del 11 de junio. No se puede cambiar después del inicio del torneo.</div>
+        <div class="notice notice-warn">Completá antes del 11 de junio a las 16:00 ART. Se cierran al iniciar el primer partido (México vs Sudáfrica) y no se pueden cambiar después.</div>
         <div class="bonus-grid">
           <div class="bonus-item">
             <div class="bonus-label">Campeón del mundo <span class="bonus-pts">+9 pts</span></div>
@@ -1364,7 +1364,7 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
           <div class="regla-chip"><span class="pts">+9 pts</span><span>Campeón acertado</span></div>
           <div class="regla-chip"><span class="pts">+9 pts</span><span>Goleador acertado</span></div>
         </div>
-        <div class="reglas-nota">Los pronósticos se cierran al inicio de cada partido</div>
+        <div class="reglas-nota">Los pronósticos de cada partido se cierran <strong>1 hora antes del comienzo</strong>. Campeón y goleador se cierran al iniciar el primer partido del Mundial.</div>
       </div>
 
       <div id="banner-incompleto" class="banner-incompleto"></div>
@@ -1506,6 +1506,15 @@ function matchDeadline(p){ return (p && p.kickoff instanceof Date) ? new Date(p.
 function matchClosed(p){ const d = matchDeadline(p); return d ? (new Date() >= d) : false; }
 // Para elim: sólo lo consideramos "listo para pronosticar" cuando el admin cargó ambos equipos
 function elimHasTeams(p){ const eq = adminData && adminData.elimEquipos && adminData.elimEquipos[p.id]; return !!(eq && eq.local && eq.visit); }
+// Campeón y goleador cierran al inicio del primer partido del Mundial (no a 1h antes — son picks de torneo, no de partido)
+function getBonusDeadline(){
+  let primero = null;
+  for (const p of partidos) {
+    if (p.kickoff instanceof Date && (!primero || p.kickoff < primero)) primero = p.kickoff;
+  }
+  return primero;
+}
+function bonusClosed(){ const d = getBonusDeadline(); return d ? (new Date() >= d) : false; }
 const GRUPOS={
   A:[
     {local:"México",       visit:"Sudáfrica",    kickoff:"2026-06-11T16:00:00-03:00"},
@@ -1755,6 +1764,7 @@ function saveProno(pid,side,val){
 }
 function saveBonus(){
   const uid=uidKey();if(!uid)return;
+  if (bonusClosed()) { mostrarToast('Campeón y goleador cerrados — el torneo ya arrancó'); return; }
   window._set(window._ref(window._db,'usuarios/'+uid+'/bonus'),{campeon:document.getElementById('inp-campeon').value,goleador:document.getElementById('inp-goleador').value});
   recalc();
   setTimeout(checkAllPredictionsComplete, 300);
@@ -2481,22 +2491,33 @@ function aplicarBloqueoFases() {
     }
   });
 
-  // Bloquear bonus campeón/goleador junto con grupos
+  // Bloquear bonus campeón/goleador: cuando admin desactiva grupos O cuando arrancó el torneo
   const campEl = document.getElementById('inp-campeon');
   const golEl  = document.getElementById('inp-goleador');
+  const bonusCerradoAuto = bonusClosed();
+  const bonusActivos = gruposHabilitados && !bonusCerradoAuto;
   if (campEl) {
-    campEl.disabled = !gruposHabilitados;
-    campEl.style.opacity = gruposHabilitados ? '1' : '0.5';
+    campEl.disabled = !bonusActivos;
+    campEl.style.opacity = bonusActivos ? '1' : '0.5';
   }
   if (golEl) {
-    golEl.disabled = !gruposHabilitados;
-    golEl.style.opacity = gruposHabilitados ? '1' : '0.5';
+    golEl.disabled = !bonusActivos;
+    golEl.style.opacity = bonusActivos ? '1' : '0.5';
   }
   // Bloquear visualmente la card de bonus
   const bonusCard = document.querySelector('.card:has(#inp-campeon)');
   if(bonusCard){
-    bonusCard.style.opacity = gruposHabilitados ? '1' : '0.6';
-    bonusCard.style.pointerEvents = gruposHabilitados ? 'auto' : 'none';
+    bonusCard.style.opacity = bonusActivos ? '1' : '0.6';
+    bonusCard.style.pointerEvents = bonusActivos ? 'auto' : 'none';
+    // Cuando cierra automáticamente, mostrar mensaje claro
+    bonusCard.querySelectorAll('.bonus-locked-msg').forEach(el => el.remove());
+    if (bonusCerradoAuto && gruposHabilitados) {
+      const msg = document.createElement('div');
+      msg.className = 'bonus-locked-msg';
+      msg.style.cssText = 'margin-top:.75rem;padding:8px 12px;background:var(--gris1);border-radius:6px;font-size:12px;color:var(--gris3);text-align:center;font-style:italic';
+      msg.textContent = '🔒 Cerrado — el torneo ya empezó';
+      bonusCard.appendChild(msg);
+    }
   }
 
   // ── BLOQUEAR ELIMINATORIAS ───────────────────────────────────
@@ -3089,7 +3110,7 @@ function limpiarResultadosPrueba(){
   <div class="ayuda-seccion">
     <div class="ayuda-seccion-titulo">Paso a paso</div>
     <ul class="ayuda-pasos">
-      <li><span class="ayuda-num">1</span><span><strong style="color:#fff">Ingresá campeón y goleador</strong> — hacelo antes del 11 de junio. Una vez que arranca el torneo ya no podés cambiarlos.</span></li>
+      <li><span class="ayuda-num">1</span><span><strong style="color:#fff">Ingresá campeón y goleador</strong> — hacelo antes del 11 de junio a las 16:00 ART. Se cierran automáticamente al iniciar el primer partido y no se pueden cambiar después.</span></li>
       <li><span class="ayuda-num">2</span><span><strong style="color:#fff">Pronosticá los partidos de grupos</strong> — completá el marcador exacto (local y visitante) para cada partido de los 12 grupos.</span></li>
       <li><span class="ayuda-num">3</span><span><strong style="color:#fff">Seguí las eliminatorias</strong> — a medida que avanza el torneo, aparecen los partidos desde Dieciseisavos hasta la Final. Pronosticá el resultado de cada uno.</span></li>
       <li><span class="ayuda-num">4</span><span><strong style="color:#fff">Mirá el ranking</strong> — tus puntos se actualizan automáticamente cada vez que el admin carga un resultado.</span></li>
@@ -3110,7 +3131,7 @@ function limpiarResultadosPrueba(){
     <div class="ayuda-seccion-titulo">Tips</div>
     <div class="ayuda-tips">
       <div class="ayuda-tip">Los pronósticos se guardan automáticamente al escribir, no hace falta confirmar nada.</div>
-      <div class="ayuda-tip">Podés cambiar tus pronósticos de grupos en cualquier momento antes de que el partido empiece.</div>
+      <div class="ayuda-tip">Podés cambiar tus pronósticos de cada partido hasta <strong>1 hora antes</strong> del kickoff. Después se bloquea automáticamente y aparece un candado 🔒.</div>
       <div class="ayuda-tip">Las filas doradas en el ranking indican resultados exactos; las grises, solo ganador correcto.</div>
     </div>
   </div>
