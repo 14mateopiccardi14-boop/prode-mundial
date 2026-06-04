@@ -2096,14 +2096,16 @@ function guardarRanking(r){
   });
 }
 
+function compararRanking(a,b){
+  if ((b.total||0) !== (a.total||0)) return (b.total||0) - (a.total||0);
+  if ((b.ptsBonus||0) !== (a.ptsBonus||0)) return (b.ptsBonus||0) - (a.ptsBonus||0);
+  if ((b.exactos||0) !== (a.exactos||0)) return (b.exactos||0) - (a.exactos||0);
+  return (a.tsRegistro||a.ts||0) - (b.tsRegistro||b.ts||0);
+}
+
 function renderRanking(){
   const tbody=document.getElementById('ranking-body');if(!tbody)return;
-  const rows = Object.entries(rankingData).map(([uid,d]) => Object.assign({},d,{uid})).sort((a,b) => {
-    if ((b.total||0) !== (a.total||0)) return (b.total||0) - (a.total||0);
-    if ((b.ptsBonus||0) !== (a.ptsBonus||0)) return (b.ptsBonus||0) - (a.ptsBonus||0);
-    if ((b.exactos||0) !== (a.exactos||0)) return (b.exactos||0) - (a.exactos||0);
-    return (a.tsRegistro||a.ts||0) - (b.tsRegistro||b.ts||0);
-  });
+  const rows=Object.entries(rankingData).map(([uid,d])=>Object.assign({},d,{uid})).sort(compararRanking);
   if(!rows.length){tbody.innerHTML='<tr><td colspan="6" class="empty">Nadie registrado todavía.</td></tr>';return;}
   const myUid=uidKey();
   const myPos = rows.findIndex(r => r.uid === myUid);
@@ -2742,7 +2744,7 @@ function guardarElimEquipos(){
 
 function exportarResultados(){
   const fase = document.getElementById('export-fase-select').value;
-  const rankEntries = Object.values(rankingData).sort((a,b)=>b.total-a.total);
+  const rankEntries = Object.values(rankingData).sort(compararRanking);
   if(!rankEntries.length){ mostrarToast('No hay participantes todavía'); return; }
 
   if(fase === 'ranking' || fase === 'todos') {
@@ -3020,7 +3022,7 @@ function renderRRHH(){
   const valPct   = document.getElementById('rrhh-pct');
   if(!lista) return;
 
-  const entries = Object.values(rankingData).sort((a,b)=>b.total-a.total);
+  const entries = Object.values(rankingData).sort(compararRanking);
   const total = entries.length;
   const totalPartidos = partidos.length;
 
