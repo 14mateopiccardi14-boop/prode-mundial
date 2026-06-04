@@ -1834,7 +1834,7 @@ function recalc(){
   const pc=document.getElementById('pill-camp'),pg=document.getElementById('pill-gol');
   if(pc){if(!r.campR){pc.className='bonus-pill pill-pend';pc.textContent='9 pts';}else if(r.ptsCamp){if(pc.className!=='bonus-pill pill-ok'){pc.className='bonus-pill pill-ok pill-pop';pc.addEventListener('animationend',()=>pc.classList.remove('pill-pop'),{once:true});}pc.textContent='+9 pts';}else{pc.className='bonus-pill pill-miss';pc.textContent='0 pts';}}
   if(pg){if(!r.golR){pg.className='bonus-pill pill-pend';pg.textContent='9 pts';}else if(r.ptsGol){if(pg.className!=='bonus-pill pill-ok'){pg.className='bonus-pill pill-ok pill-pop';pg.addEventListener('animationend',()=>pg.classList.remove('pill-pop'),{once:true});}pg.textContent='+9 pts';}else{pg.className='bonus-pill pill-miss';pg.textContent='0 pts';}}
-  guardarRanking(r.total,r.ptsGrupos,r.ptsElim,r.ptsBonus);
+  guardarRanking(r);
   validarPronósticos();
   renderStatusBar();
 }
@@ -2079,9 +2079,21 @@ function updateChip(pid){
 }
 function refreshChips(){partidos.forEach(p=>updateChip(p.id));ELIM.forEach(p=>updateChip(p.id));}
 
-function guardarRanking(total,ptsGrupos,ptsElim,ptsBonus){
+function guardarRanking(r){
   const uid=uidKey();if(!uid||!currentUser)return;
-  window._set(window._ref(window._db,'ranking/'+uid),{nombre:currentUser.displayName||'Sin nombre',foto:currentUser.photoURL||'',total,ptsGrupos,ptsElim,ptsBonus,ts:Date.now()});
+  const existing = rankingData[uid] || {};
+  const tsRegistro = existing.tsRegistro || Date.now();
+  window._set(window._ref(window._db,'ranking/'+uid),{
+    nombre:currentUser.displayName||'Sin nombre',
+    foto:currentUser.photoURL||'',
+    total:r.total,
+    ptsGrupos:r.ptsGrupos,
+    ptsElim:r.ptsElim,
+    ptsBonus:r.ptsBonus,
+    exactos:r.exactos,
+    tsRegistro,
+    ts:Date.now()
+  });
 }
 
 function renderRanking(){
