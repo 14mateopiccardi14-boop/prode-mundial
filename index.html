@@ -2098,7 +2098,12 @@ function guardarRanking(r){
 
 function renderRanking(){
   const tbody=document.getElementById('ranking-body');if(!tbody)return;
-  const rows=Object.entries(rankingData).map(([uid,d])=>Object.assign({},d,{uid})).sort((a,b)=>b.total-a.total);
+  const rows = Object.entries(rankingData).map(([uid,d]) => Object.assign({},d,{uid})).sort((a,b) => {
+    if ((b.total||0) !== (a.total||0)) return (b.total||0) - (a.total||0);
+    if ((b.ptsBonus||0) !== (a.ptsBonus||0)) return (b.ptsBonus||0) - (a.ptsBonus||0);
+    if ((b.exactos||0) !== (a.exactos||0)) return (b.exactos||0) - (a.exactos||0);
+    return (a.tsRegistro||a.ts||0) - (b.tsRegistro||b.ts||0);
+  });
   if(!rows.length){tbody.innerHTML='<tr><td colspan="6" class="empty">Nadie registrado todavía.</td></tr>';return;}
   const myUid=uidKey();
   const myPos = rows.findIndex(r => r.uid === myUid);
