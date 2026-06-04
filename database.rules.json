@@ -19,6 +19,8 @@
         "ptsGrupos": { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 500" },
         "ptsElim":   { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 500" },
         "ptsBonus":  { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
+        "exactos":    { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 200" },
+        "tsRegistro": { ".validate": "newData.isNumber()" },
         "ts":        { ".validate": "newData.isNumber()" },
         "$other":    { ".validate": false }
       }
