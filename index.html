@@ -1713,6 +1713,11 @@ function mostrarApp(user){
   actualizarCountdown();
   const navAdmin=document.getElementById('nav-admin');
   if(navAdmin) navAdmin.style.display=ADMIN_EMAILS.includes(user.email)?'':'none';
+  if(esAdmin()){
+    publicarDeadlines();
+    // Red de seguridad: si quedo un recalculo pendiente (admin cerro la pestana), se corrige al volver a entrar
+    setTimeout(recalcRankingTodos, 5000);
+  }
   setTimeout(mostrarBienvenida, 800);
   setTimeout(()=>{const b=document.querySelector('.nav-btn.active'),i=document.getElementById('nav-indicator');if(b&&i){i.style.left=b.offsetLeft+'px';i.style.width=b.offsetWidth+'px';}},100);
 }
@@ -1747,7 +1752,7 @@ function cargarDatos(){
     }
     if(document.getElementById('admin-camp')){document.getElementById('admin-camp').value=adminData.campeon||'';document.getElementById('admin-gol').value=adminData.goleador||'';}
   });
-  window._onValue(window._ref(window._db,'ranking'),snap=>{rankingData=snap.val()||{};renderRanking();renderStatusBar();});
+  window._onValue(window._ref(window._db,'ranking'),snap=>{rankingData=snap.val()||{};rankingLoaded=true;asegurarEntradaRanking();renderRanking();renderStatusBar();});
 }
 
 function saveProno(pid,side,val){
@@ -1777,40 +1782,38 @@ function saveAdminBonus(){
     if(!esAdmin()) return;
     adminData.campeon=document.getElementById('admin-camp').value;
     adminData.goleador=document.getElementById('admin-gol').value;
-    window._set(window._ref(window._db,'admin'),adminData);
+    window._update(window._ref(window._db),{'admin/campeon':adminData.campeon,'admin/goleador':adminData.goleador});
+    programarRecalcRanking();
   },800);
 }
 
-function calcPuntos(){
+function calcPuntosDe(pronos,bonus){
   let ptsGrupos=0,ptsElim=0,exactos=0,ganadores=0;
   const reales=adminData.resultados||{};
-  partidos.forEach(p=>{
+  const evalPartido=(p,esElim)=>{
     const real=reales[p.id];if(!real)return;
-    const pr=misPronos[p.id];if(!pr)return;
+    const pr=pronos[p.id];if(!pr)return;
     const pL=parseInt(pr.l),pV=parseInt(pr.v),rL=parseInt(real.l),rV=parseInt(real.v);
     if(isNaN(pL)||isNaN(pV)||isNaN(rL)||isNaN(rV))return;
-    if(pL===rL&&pV===rV){ptsGrupos+=3;exactos++;}
-    else if(Math.sign(pL-pV)===Math.sign(rL-rV)){ptsGrupos+=1;ganadores++;}
-  });
-  ELIM.forEach(p=>{
-    const real=reales[p.id];if(!real)return;
-    const pr=misPronos[p.id];if(!pr)return;
-    const pL=parseInt(pr.l),pV=parseInt(pr.v),rL=parseInt(real.l),rV=parseInt(real.v);
-    if(isNaN(pL)||isNaN(pV)||isNaN(rL)||isNaN(rV))return;
-    if(pL===rL&&pV===rV){ptsElim+=4;exactos++;}
-    else if(Math.sign(pL-pV)===Math.sign(rL-rV)){ptsElim+=2;ganadores++;}
-  });
+    if(pL===rL&&pV===rV){if(esElim)ptsElim+=4;else ptsGrupos+=3;exactos++;}
+    else if(Math.sign(pL-pV)===Math.sign(rL-rV)){if(esElim)ptsElim+=2;else ptsGrupos+=1;ganadores++;}
+  };
+  partidos.forEach(p=>evalPartido(p,false));
+  ELIM.forEach(p=>evalPartido(p,true));
   const campR=(adminData.campeon||'').trim().toLowerCase();
   const golR=(adminData.goleador||'').trim().toLowerCase();
-  const campEl=document.getElementById('inp-campeon');
-  const golEl=document.getElementById('inp-goleador');
-  const campP=campEl?campEl.value.trim().toLowerCase():'';
-  const golP=golEl?golEl.value.trim().toLowerCase():'';
+  const campP=((bonus&&bonus.campeon)||'').trim().toLowerCase();
+  const golP=((bonus&&bonus.goleador)||'').trim().toLowerCase();
   const _n=s=>s.normalize('NFD').replace(/[̀-ͯ]/g,'');
   const ptsCamp=(campR&&_n(campP)===_n(campR))?9:0;
   const ptsGol=(golR&&_n(golP)===_n(golR))?9:0;
   const ptsBonus=ptsCamp+ptsGol;
   return{total:ptsGrupos+ptsElim+ptsBonus,ptsGrupos,ptsElim,ptsBonus,ptsCamp,ptsGol,exactos,ganadores,campR,golR};
+}
+function calcPuntos(){
+  const campEl=document.getElementById('inp-campeon');
+  const golEl=document.getElementById('inp-goleador');
+  return calcPuntosDe(misPronos,{campeon:campEl?campEl.value:'',goleador:golEl?golEl.value:''});
 }
 
 function _countUp(id,to,dur){
@@ -1834,7 +1837,7 @@ function recalc(){
   const pc=document.getElementById('pill-camp'),pg=document.getElementById('pill-gol');
   if(pc){if(!r.campR){pc.className='bonus-pill pill-pend';pc.textContent='9 pts';}else if(r.ptsCamp){if(pc.className!=='bonus-pill pill-ok'){pc.className='bonus-pill pill-ok pill-pop';pc.addEventListener('animationend',()=>pc.classList.remove('pill-pop'),{once:true});}pc.textContent='+9 pts';}else{pc.className='bonus-pill pill-miss';pc.textContent='0 pts';}}
   if(pg){if(!r.golR){pg.className='bonus-pill pill-pend';pg.textContent='9 pts';}else if(r.ptsGol){if(pg.className!=='bonus-pill pill-ok'){pg.className='bonus-pill pill-ok pill-pop';pg.addEventListener('animationend',()=>pg.classList.remove('pill-pop'),{once:true});}pg.textContent='+9 pts';}else{pg.className='bonus-pill pill-miss';pg.textContent='0 pts';}}
-  guardarRanking(r);
+  asegurarEntradaRanking();
   validarPronósticos();
   renderStatusBar();
 }
@@ -2079,28 +2082,63 @@ function updateChip(pid){
 }
 function refreshChips(){partidos.forEach(p=>updateChip(p.id));ELIM.forEach(p=>updateChip(p.id));}
 
-function guardarRanking(r){
-  const uid=uidKey();if(!uid||!currentUser)return;
-  const existing = rankingData[uid] || {};
-  const tsRegistro = existing.tsRegistro || Date.now();
-  const nombre=currentUser.displayName||'Sin nombre';
-  const foto=currentUser.photoURL||'';
-  // Evitar writes redundantes: cada cambio del admin hacía que TODOS los clientes
-  // re-escribieran su ranking (con ts nuevo), disparando re-renders en cadena.
-  if(existing.total===r.total&&existing.ptsGrupos===r.ptsGrupos&&existing.ptsElim===r.ptsElim&&
-     existing.ptsBonus===r.ptsBonus&&existing.exactos===r.exactos&&
-     existing.nombre===nombre&&existing.foto===foto) return;
+// Los puntos del ranking los escribe SOLO el admin (recalcRankingTodos); las rules
+// bloquean updates de usuarios. Cada usuario solo crea su entrada (en cero) al registrarse.
+let rankingLoaded=false;
+function asegurarEntradaRanking(){
+  const uid=uidKey();if(!uid||!currentUser||!rankingLoaded)return;
+  if(rankingData[uid])return;
   window._set(window._ref(window._db,'ranking/'+uid),{
-    nombre:nombre,
-    foto:foto,
-    total:r.total,
-    ptsGrupos:r.ptsGrupos,
-    ptsElim:r.ptsElim,
-    ptsBonus:r.ptsBonus,
-    exactos:r.exactos,
-    tsRegistro,
+    nombre:currentUser.displayName||'Sin nombre',
+    foto:currentUser.photoURL||'',
+    total:0,ptsGrupos:0,ptsElim:0,ptsBonus:0,exactos:0,
+    tsRegistro:Date.now(),
     ts:Date.now()
   });
+}
+
+// Recalcula los puntos de TODOS los participantes desde sus pronos reales (solo admin).
+let _recalcTimer=null;
+function programarRecalcRanking(){
+  if(!esAdmin())return;
+  clearTimeout(_recalcTimer);
+  _recalcTimer=setTimeout(recalcRankingTodos,2000);
+}
+function recalcRankingTodos(){
+  if(!esAdmin())return;
+  window._get(window._ref(window._db,'usuarios')).then(snap=>{
+    const usuarios=snap.val()||{};
+    const upd={};
+    Object.keys(rankingData).forEach(uid=>{
+      const u=usuarios[uid]||{};
+      const r=calcPuntosDe(u.pronos||{},u.bonus||{});
+      const e=rankingData[uid];
+      if(e.total===r.total&&e.ptsGrupos===r.ptsGrupos&&e.ptsElim===r.ptsElim&&
+         e.ptsBonus===r.ptsBonus&&e.exactos===r.exactos)return;
+      upd['ranking/'+uid+'/total']=r.total;
+      upd['ranking/'+uid+'/ptsGrupos']=r.ptsGrupos;
+      upd['ranking/'+uid+'/ptsElim']=r.ptsElim;
+      upd['ranking/'+uid+'/ptsBonus']=r.ptsBonus;
+      upd['ranking/'+uid+'/exactos']=r.exactos;
+      upd['ranking/'+uid+'/ts']=Date.now();
+    });
+    if(Object.keys(upd).length)
+      return window._update(window._ref(window._db),upd).then(()=>mostrarToast('✅ Ranking actualizado'));
+  }).catch(err=>{
+    console.error('Error recalculando ranking:',err);
+    mostrarToast('❌ Error al recalcular el ranking');
+  });
+}
+
+// Publica el deadline de cada partido para que las rules bloqueen pronos tardios server-side.
+function publicarDeadlines(){
+  if(!esAdmin())return;
+  const map={};
+  [...partidos,...ELIM].forEach(p=>{
+    const d=matchDeadline(p);
+    if(d)map[p.id]=d.getTime();
+  });
+  window._set(window._ref(window._db,'deadlines'),map);
 }
 
 function compararRanking(a,b){
@@ -2241,6 +2279,7 @@ function renderAdminPartidos(){
       adminData.resultados[pid][side]=val;
       // Write puntual: subir todo adminData por cada gol re-renderizaba la app entera en cada cliente
       window._update(window._ref(window._db),{['admin/resultados/'+pid+'/'+side]:val});
+      programarRecalcRanking();
     });
   });
 }

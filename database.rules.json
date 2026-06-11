@@ -8,11 +8,17 @@
       ".write": "auth != null && (auth.token.email === 'mateopiccardi@movistararena.com.ar' || auth.token.email === 'federicosegovia@movistararena.com.ar')"
     },
 
+    "deadlines": {
+      ".read": "auth != null && auth.token.email.endsWith('@movistararena.com.ar')",
+      ".write": "auth != null && (auth.token.email === 'mateopiccardi@movistararena.com.ar' || auth.token.email === 'federicosegovia@movistararena.com.ar')",
+      "$pid": { ".validate": "newData.isNumber()" }
+    },
+
     "ranking": {
       ".read": "auth != null && auth.token.email.endsWith('@movistararena.com.ar')",
       "$uid": {
-        ".write": "auth != null && (auth.uid === $uid || auth.token.email === 'mateopiccardi@movistararena.com.ar' || auth.token.email === 'federicosegovia@movistararena.com.ar')",
-        ".validate": "newData.hasChildren(['nombre','total']) || !newData.exists()",
+        ".write": "auth != null && (auth.token.email === 'mateopiccardi@movistararena.com.ar' || auth.token.email === 'federicosegovia@movistararena.com.ar' || (auth.uid === $uid && auth.token.email.endsWith('@movistararena.com.ar') && !data.exists()))",
+        ".validate": "newData.hasChildren(['nombre','total']) && (data.exists() || auth.token.email === 'mateopiccardi@movistararena.com.ar' || auth.token.email === 'federicosegovia@movistararena.com.ar' || (newData.child('total').val() === 0 && newData.child('ptsGrupos').val() === 0 && newData.child('ptsElim').val() === 0 && newData.child('ptsBonus').val() === 0 && newData.child('exactos').val() === 0))",
         "nombre":    { ".validate": "newData.isString() && newData.val().length <= 100" },
         "foto":      { ".validate": "newData.isString() && (newData.val() === '' || newData.val().beginsWith('https://'))" },
         "total":     { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 500" },
@@ -20,7 +26,7 @@
         "ptsElim":   { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 500" },
         "ptsBonus":  { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 100" },
         "exactos":    { ".validate": "newData.isNumber() && newData.val() >= 0 && newData.val() <= 200" },
-        "tsRegistro": { ".validate": "newData.isNumber()" },
+        "tsRegistro": { ".validate": "newData.isNumber() && (data.exists() ? newData.val() === data.val() : (newData.val() >= now - 3600000 && newData.val() <= now + 3600000))" },
         "ts":        { ".validate": "newData.isNumber()" },
         "$other":    { ".validate": false }
       }
@@ -30,15 +36,17 @@
       ".read": "auth != null && (auth.token.email === 'mateopiccardi@movistararena.com.ar' || auth.token.email === 'federicosegovia@movistararena.com.ar')",
       "$uid": {
         ".read":  "auth != null && (auth.uid === $uid || auth.token.email === 'mateopiccardi@movistararena.com.ar' || auth.token.email === 'federicosegovia@movistararena.com.ar')",
-        ".write": "auth != null && (auth.uid === $uid || auth.token.email === 'mateopiccardi@movistararena.com.ar' || auth.token.email === 'federicosegovia@movistararena.com.ar')",
+        ".write": "auth != null && ((auth.uid === $uid && auth.token.email.endsWith('@movistararena.com.ar')) || auth.token.email === 'mateopiccardi@movistararena.com.ar' || auth.token.email === 'federicosegovia@movistararena.com.ar')",
         "pronos": {
           "$pid": {
+            ".validate": "!root.child('deadlines').child($pid).exists() || now < root.child('deadlines').child($pid).val() || auth.token.email === 'mateopiccardi@movistararena.com.ar' || auth.token.email === 'federicosegovia@movistararena.com.ar'",
             "l": { ".validate": "newData.val() === null || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 50)" },
             "v": { ".validate": "newData.val() === null || (newData.isNumber() && newData.val() >= 0 && newData.val() <= 50)" },
             "$other": { ".validate": false }
           }
         },
         "bonus": {
+          ".validate": "now < 1781204400000 || auth.token.email === 'mateopiccardi@movistararena.com.ar' || auth.token.email === 'federicosegovia@movistararena.com.ar'",
           "campeon":  { ".validate": "newData.isString() && newData.val().length <= 50" },
           "goleador": { ".validate": "newData.isString() && newData.val().length <= 100" },
           "$other":   { ".validate": false }
@@ -51,7 +59,8 @@
             "nombre": { ".validate": "newData.isString() && newData.val().length <= 100" },
             "$other": { ".validate": false }
           }
-        }
+        },
+        "$other": { ".validate": false }
       }
     }
   }
