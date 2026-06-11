@@ -2083,9 +2083,16 @@ function guardarRanking(r){
   const uid=uidKey();if(!uid||!currentUser)return;
   const existing = rankingData[uid] || {};
   const tsRegistro = existing.tsRegistro || Date.now();
+  const nombre=currentUser.displayName||'Sin nombre';
+  const foto=currentUser.photoURL||'';
+  // Evitar writes redundantes: cada cambio del admin hacía que TODOS los clientes
+  // re-escribieran su ranking (con ts nuevo), disparando re-renders en cadena.
+  if(existing.total===r.total&&existing.ptsGrupos===r.ptsGrupos&&existing.ptsElim===r.ptsElim&&
+     existing.ptsBonus===r.ptsBonus&&existing.exactos===r.exactos&&
+     existing.nombre===nombre&&existing.foto===foto) return;
   window._set(window._ref(window._db,'ranking/'+uid),{
-    nombre:currentUser.displayName||'Sin nombre',
-    foto:currentUser.photoURL||'',
+    nombre:nombre,
+    foto:foto,
     total:r.total,
     ptsGrupos:r.ptsGrupos,
     ptsElim:r.ptsElim,
@@ -2230,8 +2237,10 @@ function renderAdminPartidos(){
       if(!adminData.resultados)adminData.resultados={};
       const pid=this.dataset.pid,side=this.dataset.side;
       if(!adminData.resultados[pid])adminData.resultados[pid]={};
-      adminData.resultados[pid][side]=this.value===''?null:parseInt(this.value);
-      window._set(window._ref(window._db,'admin'),adminData);
+      const val=this.value===''?null:parseInt(this.value);
+      adminData.resultados[pid][side]=val;
+      // Write puntual: subir todo adminData por cada gol re-renderizaba la app entera en cada cliente
+      window._update(window._ref(window._db),{['admin/resultados/'+pid+'/'+side]:val});
     });
   });
 }
@@ -2848,7 +2857,7 @@ function generarCSV(headers, rows, nombre){
 const INICIO_MUNDIAL = new Date('2026-06-11T16:00:00-03:00');
 const CIERRES_FASE = [
   { label: 'CIERRE GRUPOS',        fecha: new Date('2026-06-11T12:00:00-03:00') },
-  { label: 'CIERRE 32AVOS',        fecha: new Date('2026-06-28T10:00:00-03:00') },
+  { label: 'CIERRE DIECISEISAVOS', fecha: new Date('2026-06-28T10:00:00-03:00') },
   { label: 'CIERRE OCTAVOS',       fecha: new Date('2026-07-04T10:00:00-03:00') },
   { label: 'CIERRE CUARTOS',       fecha: new Date('2026-07-09T10:00:00-03:00') },
   { label: 'CIERRE SEMIS',         fecha: new Date('2026-07-14T10:00:00-03:00') },
