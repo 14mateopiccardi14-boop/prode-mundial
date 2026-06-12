@@ -1,0 +1,22 @@
+name: Sync resultados Mundial
+
+on:
+  schedule:
+    # Ventana de partidos en UTC (12:00 a 03:30 hora argentina), cada 30 min
+    - cron: '*/30 15-23 * * *'
+    - cron: '*/30 0-6 * * *'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install --no-save --no-audit --no-fund firebase-admin
+      - run: node scripts/sync-resultados.js
+        env:
+          FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}

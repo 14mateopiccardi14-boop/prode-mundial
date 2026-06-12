@@ -8,6 +8,7 @@
       "**/node_modules/**",
       "database.rules.json",
       "docs/**",
+      "scripts/**",
       ".superpowers/**",
       ".claude/**",
       "preview.html",

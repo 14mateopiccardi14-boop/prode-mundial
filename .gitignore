@@ -5,6 +5,11 @@
 # Preview / test files locales
 preview.html
 
+# Datos locales bajados de Firebase para pruebas (contienen datos de usuarios)
+scripts/*.tmp.json
+node_modules/
+.firebase/
+
 # OS
 .DS_Store
 Thumbs.db
