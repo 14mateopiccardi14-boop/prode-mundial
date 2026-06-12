@@ -285,6 +285,14 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
 .rank-avatar-ph{width:28px;height:28px;border-radius:50%;background:var(--negro2);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:600;color:var(--gris3);flex-shrink:0}
 .rank-uname{font-weight:500;color:var(--negro);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:180px}
 .rank-you{font-size:10px;background:var(--negro);color:var(--dorado);padding:1px 6px;border-radius:10px;margin-left:4px}
+.rank-mov{font-size:10px;font-weight:700;margin-left:6px;flex-shrink:0}
+.rank-mov.up{color:var(--verde)}
+.rank-mov.down{color:var(--rojo)}
+.rank-table tr.zona-premio td:first-child{box-shadow:inset 3px 0 0 var(--dorado)}
+.rank-table tr.premio-menor td{background:#FFFDF4}
+.pz{background:#F3E5BC;color:#7A5C10}
+.premio-divider td{padding:5px 10px;text-align:center;font-family:'Bebas Neue',sans-serif;font-size:11px;letter-spacing:.14em;color:var(--dorado)}
+.premio-divider:hover td{background:transparent}
 .pts-col{font-weight:500;color:var(--gris3);text-align:center}
 .total-col{font-weight:700;font-size:15px;color:var(--negro);text-align:center}
 .admin-row{display:grid;grid-template-columns:36px 1fr 40px 14px 40px;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid var(--gris2)}
@@ -819,6 +827,26 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
 }
 .btn-modal:hover{opacity:.9}
 
+/* ── MODAL RESUMEN PERSONAL ─────────────────────────────────── */
+#modal-recap{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:490;display:none;align-items:center;justify-content:center;padding:1rem}
+.recap-match{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--negro3)}
+.recap-match:last-of-type{border-bottom:none}
+.recap-equipos{font-size:13px;color:var(--blanco);line-height:1.35}
+.recap-equipos strong{color:var(--dorado2)}
+.recap-prono{font-size:11px;color:var(--gris3);margin-top:1px}
+.recap-pts{font-weight:700;font-size:11px;padding:2px 8px;border-radius:20px;white-space:nowrap;flex-shrink:0}
+.recap-pts.exacto{background:var(--dorado);color:var(--negro)}
+.recap-pts.ganador{background:rgba(22,163,74,.18);color:#4ADE80}
+.recap-pts.nada{background:var(--negro3);color:var(--gris3)}
+.recap-mas{font-size:11px;color:var(--gris3);padding:8px 0 0;text-align:center}
+.recap-resumen{background:var(--negro);border-radius:8px;padding:.85rem 1rem;margin-top:1rem;text-align:center}
+.recap-pos{font-family:'Bebas Neue',sans-serif;font-size:21px;color:var(--blanco);letter-spacing:.04em}
+.recap-delta{font-size:12px;margin-top:2px}
+.recap-delta.up{color:#4ADE80}
+.recap-delta.down{color:#F87171}
+.recap-delta.same{color:var(--gris3)}
+.recap-premio{font-size:11px;color:var(--dorado2);margin-top:5px;font-weight:600;letter-spacing:.03em}
+
 /* ── PANEL RRHH ─────────────────────────────────────────────── */
 .rrhh-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;margin-bottom:.75rem}
 .rrhh-metric{background:var(--negro);border-radius:8px;padding:.75rem;text-align:center}
@@ -1282,6 +1310,20 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
   </div>
 </div>
 
+<div id="modal-recap">
+  <div class="modal-box">
+    <div class="modal-titulo" id="recap-titulo">Tu resumen</div>
+    <div class="modal-sub" id="recap-sub"></div>
+    <div id="recap-partidos"></div>
+    <div class="recap-resumen">
+      <div class="recap-pos" id="recap-pos"></div>
+      <div class="recap-delta" id="recap-delta"></div>
+      <div class="recap-premio" id="recap-premio" style="display:none">🏆 Estás en zona de premios (1° al 7°)</div>
+    </div>
+    <button class="btn-modal" onclick="cerrarRecap()">¡Vamos!</button>
+  </div>
+</div>
+
 <div id="screen-app">
   <header class="site-header">
     <div class="header-left">
@@ -1700,6 +1742,7 @@ let pid2=0;
 Object.keys(GRUPOS).forEach(g=>{GRUPOS[g].forEach(m=>{partidos.push({id:String(pid2++),grupo:g,local:m.local,visit:m.visit,kickoff:new Date(m.kickoff),esGrupo:true});});});
 
 let currentUser=null,misPronos={},adminData={},rankingData={};
+let adminLoaded=false,pronosLoaded=false;
 
 function ocultarLoading(){const el=document.getElementById('screen-loading');el.style.opacity='0';setTimeout(()=>el.style.display='none',400);}
 function mostrarLogin(){document.getElementById('screen-login').style.display='flex';document.getElementById('screen-app').style.display='none';}
@@ -1727,7 +1770,7 @@ function uidKey(){return currentUser?currentUser.uid:null;}
 
 function cargarDatos(){
   const uid=uidKey();if(!uid)return;
-  window._onValue(window._ref(window._db,'usuarios/'+uid+'/pronos'),snap=>{misPronos=snap.val()||{};renderFixture();recalc();updateMatchDeadlines();});
+  window._onValue(window._ref(window._db,'usuarios/'+uid+'/pronos'),snap=>{misPronos=snap.val()||{};pronosLoaded=true;renderFixture();recalc();updateMatchDeadlines();});
   window._onValue(window._ref(window._db,'usuarios/'+uid+'/bonus'),snap=>{
     const b=snap.val()||{};
     document.getElementById('inp-campeon').value=b.campeon||'';
@@ -1736,6 +1779,7 @@ function cargarDatos(){
   });
   window._onValue(window._ref(window._db,'admin'),snap=>{
     adminData=snap.val()||{};
+    adminLoaded=true;
     recalc();refreshChips();renderRanking();
     // Re-renderizar fixture con nombres actualizados
     if(document.getElementById('fixture-container') && document.getElementById('fixture-container').children.length > 0){
@@ -2163,19 +2207,127 @@ function renderRanking(){
     hdrRank.style.display = 'flex';
   }
   tbody.innerHTML='';
+  const prevPos=actualizarMovimientos(rows);
   rows.forEach((r,i)=>{
     const rowCls=i===0?'gold':i===1?'silver':i===2?'bronze':'';
-    const posCls=i===0?'p1':i===1?'p2':i===2?'p3':'pn';
+    const posCls=i===0?'p1':i===1?'p2':i===2?'p3':i<7?'pz':'pn';
     const _foto=safePhotoUrl(r.foto);
     const av=_foto?'<img class="rank-avatar" src="'+escapeHtml(_foto)+'" alt="" onerror="this.style.display=\'none\'">':'<div class="rank-avatar-ph">'+escapeHtml((r.nombre||'?')[0].toUpperCase())+'</div>';
     const you=r.uid===myUid?'<span class="rank-you">vos</span>':'';
+    let mov='';
+    const pAnt=prevPos[r.uid];
+    if(pAnt){
+      const d=pAnt-(i+1);
+      if(d>0)mov='<span class="rank-mov up">▲'+d+'</span>';
+      else if(d<0)mov='<span class="rank-mov down">▼'+(-d)+'</span>';
+    }
     const tr=document.createElement('tr');tr.className=rowCls;
-    tr.innerHTML='<td><div class="pos-circle '+posCls+'">'+(i+1)+'</div></td><td><div class="rank-user">'+av+'<span class="rank-uname">'+escapeHtml(r.nombre||'—')+you+'</span></div></td><td class="pts-col">'+(r.ptsGrupos||0)+'</td><td class="pts-col">'+(r.ptsElim||0)+'</td><td class="pts-col">'+(r.ptsBonus||0)+'</td><td class="total-col">'+(r.total||0)+'</td>';
+    if(i<7){tr.classList.add('zona-premio');if(i>2)tr.classList.add('premio-menor');}
+    tr.innerHTML='<td><div class="pos-circle '+posCls+'">'+(i+1)+'</div></td><td><div class="rank-user">'+av+'<span class="rank-uname">'+escapeHtml(r.nombre||'—')+you+'</span>'+mov+'</div></td><td class="pts-col">'+(r.ptsGrupos||0)+'</td><td class="pts-col">'+(r.ptsElim||0)+'</td><td class="pts-col">'+(r.ptsBonus||0)+'</td><td class="total-col">'+(r.total||0)+'</td>';
     tr.style.animationDelay=(i*40)+'ms';
     tr.classList.add('rank-entrada');
     tbody.appendChild(tr);
+    if(i===6&&rows.length>7){
+      const sep=document.createElement('tr');sep.className='premio-divider';
+      sep.innerHTML='<td colspan="6">🏆 premios hasta acá</td>';
+      tbody.appendChild(sep);
+    }
   });
+  mostrarRecapSiCorresponde(rows,myPos,prevPos);
 }
+
+// ── MOVIMIENTOS DE RANKING (por visitante, vs ultima jornada vista) ──
+function contarResultados(){
+  return Object.values(adminData.resultados||{}).filter(r=>r&&r.l!=null&&r.v!=null).length;
+}
+function actualizarMovimientos(rows){
+  if(!adminLoaded||!rankingLoaded)return {};
+  const uid=uidKey();if(!uid)return {};
+  const key='prode_movs_'+uid;
+  const rc=contarResultados();
+  const posNow={};rows.forEach((r,i)=>{posNow[r.uid]=i+1;});
+  let st=null;try{st=JSON.parse(localStorage.getItem(key));}catch(e){}
+  if(!st||typeof st.rc!=='number')st={rc:rc,prev:{},curr:posNow};
+  else if(rc>st.rc)st={rc:rc,prev:st.curr||{},curr:posNow};
+  else if(rc<st.rc)st={rc:rc,prev:{},curr:posNow};
+  else st.curr=posNow;
+  try{localStorage.setItem(key,JSON.stringify(st));}catch(e){}
+  return st.prev||{};
+}
+
+// ── RESUMEN PERSONAL POST-PARTIDO ────────────────────────────
+let _recapShown=false;
+function mostrarRecapSiCorresponde(rows,myPos,prevPos){
+  if(_recapShown||!adminLoaded||!rankingLoaded||!pronosLoaded)return;
+  const uid=uidKey();if(!uid||myPos===-1)return;
+  const bienv=document.getElementById('modal-bienvenida');
+  if(bienv&&bienv.style.display==='flex')return;
+  const reales=adminData.resultados||{};
+  const todos=[...partidos,...ELIM];
+  const conRes=todos.filter(p=>{const r=reales[p.id];return r&&r.l!=null&&r.v!=null;});
+  const key='prode_recap_'+uid;
+  let st=null;try{st=JSON.parse(localStorage.getItem(key));}catch(e){}
+  const guardar=()=>{try{localStorage.setItem(key,JSON.stringify({seen:conRes.map(p=>p.id)}));}catch(e){}};
+  // Primera vez con la feature: marcar lo ya jugado como visto, sin modal
+  if(!st||!Array.isArray(st.seen)){guardar();return;}
+  const nuevos=conRes.filter(p=>st.seen.indexOf(p.id)===-1)
+    .sort((a,b)=>((a.kickoff&&a.kickoff.getTime())||0)-((b.kickoff&&b.kickoff.getTime())||0));
+  if(!nuevos.length)return;
+  _recapShown=true;guardar();
+
+  // Evaluar cada partido nuevo contra mi pronostico
+  let pts=0,exactos=0;
+  const items=nuevos.map(p=>{
+    const real=reales[p.id],pr=misPronos[p.id]||{};
+    const esElim=String(p.id).startsWith('e');
+    const local=p.esGrupo!==false?p.local:getElimLocal(p);
+    const visit=p.esGrupo!==false?p.visit:getElimVisit(p);
+    const pL=parseInt(pr.l),pV=parseInt(pr.v),rL=parseInt(real.l),rV=parseInt(real.v);
+    let chip,cls,g=0;
+    if(isNaN(pL)||isNaN(pV)){chip='SIN PRONO';cls='nada';}
+    else if(pL===rL&&pV===rV){g=esElim?4:3;chip='+'+g+' EXACTO 🎯';cls='exacto';exactos++;}
+    else if(Math.sign(pL-pV)===Math.sign(rL-rV)){g=esElim?2:1;chip='+'+g+' pts';cls='ganador';}
+    else{chip='0 pts';cls='nada';}
+    pts+=g;
+    return {local,visit,rL,rV,pL,pV,chip,cls};
+  });
+
+  const cont=document.getElementById('recap-partidos');cont.innerHTML='';
+  items.slice(0,8).forEach(it=>{
+    const div=document.createElement('div');div.className='recap-match';
+    div.innerHTML='<div><div class="recap-equipos">'+getFlag(it.local)+' '+escapeHtml(it.local)+' <strong>'+it.rL+'-'+it.rV+'</strong> '+escapeHtml(it.visit)+' '+getFlag(it.visit)+'</div>'+
+      '<div class="recap-prono">'+(isNaN(it.pL)?'No pronosticaste este partido':'Tu pronóstico: '+it.pL+'-'+it.pV)+'</div></div>'+
+      '<span class="recap-pts '+it.cls+'">'+it.chip+'</span>';
+    cont.appendChild(div);
+  });
+  if(items.length>8){
+    const mas=document.createElement('div');mas.className='recap-mas';
+    mas.textContent='… y '+(items.length-8)+' partido'+(items.length-8>1?'s':'')+' más (mirá la pestaña Resultados)';
+    cont.appendChild(mas);
+  }
+
+  const nombre=((currentUser&&currentUser.displayName)||'').trim().split(' ')[0]||'crack';
+  document.getElementById('recap-titulo').textContent='Hola, '+nombre+' 👋';
+  document.getElementById('recap-sub').textContent=
+    (nuevos.length===1?'Hubo 1 partido':'Hubo '+nuevos.length+' partidos')+' desde tu última visita'+
+    (pts>0?' — sumaste '+pts+' punto'+(pts>1?'s':''):'');
+  document.getElementById('recap-pos').textContent='Estás '+(myPos+1)+'° de '+rows.length;
+  const deltaEl=document.getElementById('recap-delta');
+  const pAnt=prevPos[uid];
+  if(pAnt){
+    const d=pAnt-(myPos+1);
+    if(d>0){deltaEl.className='recap-delta up';deltaEl.textContent='▲ Subiste '+d+' puesto'+(d>1?'s':'');}
+    else if(d<0){deltaEl.className='recap-delta down';deltaEl.textContent='▼ Bajaste '+(-d)+' puesto'+(d<-1?'s':'');}
+    else{deltaEl.className='recap-delta same';deltaEl.textContent='= Mantenés tu puesto';}
+  } else deltaEl.textContent='';
+  document.getElementById('recap-premio').style.display=(myPos+1)<=7?'block':'none';
+
+  document.getElementById('modal-recap').style.display='flex';
+  if(exactos>0&&typeof lanzarConfetti==='function'){
+    for(let i=0;i<3;i++)setTimeout(()=>lanzarConfetti(window.innerWidth/2+(i-1)*120,150),i*200);
+  }
+}
+function cerrarRecap(){document.getElementById('modal-recap').style.display='none';}
 
 function renderResultados(){
   const cont=document.getElementById('res-detalle');
