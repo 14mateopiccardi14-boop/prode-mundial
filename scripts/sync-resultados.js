@@ -49,7 +49,7 @@ function leerTmp(nombre) {
 async function main() {
   if (new Date() > FIN_TORNEO) { console.log('Torneo terminado, nada que hacer.'); return; }
   const token = process.env.FOOTBALL_DATA_TOKEN;
-  if (!token) { console.error('Falta FOOTBALL_DATA_TOKEN'); process.exit(1); }
+  if (!token) { console.log('FOOTBALL_DATA_TOKEN no configurado: nada que hacer todavia.'); return; }
 
   const res = await fetch('https://api.football-data.org/v4/competitions/WC/matches', { headers: { 'X-Auth-Token': token } });
   if (!res.ok) { console.error('Error de API:', res.status, await res.text()); process.exit(1); }
