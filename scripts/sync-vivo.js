@@ -65,7 +65,7 @@ async function main() {
     console.log('FIREBASE_SERVICE_ACCOUNT no configurado: corro en modo informe (sin escribir).');
     dry = true;
   }
-  if (dry) { console.log(JSON.stringify(enVivo, null, 1)); return; }
+  if (dry) { console.log(enVivo ? JSON.stringify(enVivo, null, 1) : '(sin partidos en juego)'); return; }
 
   const admin = require('firebase-admin');
   admin.initializeApp({

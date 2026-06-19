@@ -1790,8 +1790,10 @@ function renderVivo(){
       '</div>'
     );
   }
-  cont.innerHTML = cards.join('');
-  cont.style.display = cards.length ? 'flex' : 'none';
+  const html = cards.join('');
+  if (cont.innerHTML !== html) cont.innerHTML = html;
+  const disp = cards.length ? 'flex' : 'none';
+  if (cont.style.display !== disp) cont.style.display = disp;
 }
 
 // Cargar nombres de equipos eliminatorias desde Firebase
