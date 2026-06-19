@@ -992,6 +992,20 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
   line-height: 1;
 }
 
+/* ── VIVO CARD ────────────────────────────────────────────── */
+#vivo-container{margin:12px auto 0;max-width:560px;padding:0 14px;display:flex;flex-direction:column;gap:8px}
+.vivo-card{background:var(--gris1,#161616);border:1px solid var(--gris2,#2a2a2a);border-radius:14px;padding:12px 14px}
+.vivo-top{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;letter-spacing:.08em;color:#e23;text-transform:uppercase;margin-bottom:8px}
+.vivo-dot{width:8px;height:8px;border-radius:50%;background:#e23;animation:vivoPulse 1.2s infinite}
+@keyframes vivoPulse{0%,100%{opacity:1}50%{opacity:.3}}
+.vivo-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.vivo-team{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.vivo-team.visit{justify-content:flex-end}
+.vivo-team .nm{font-size:15px;font-weight:600;color:var(--blanco,#fff);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vivo-score{font-size:22px;font-weight:800;color:var(--blanco,#fff);min-width:64px;text-align:center}
+.vivo-min{font-size:11px;color:var(--gris3,#888);text-align:center;margin-top:6px}
+.vivo-nota{font-size:10px;color:var(--gris3,#888);text-align:center;margin-top:2px;opacity:.8}
+
 /* ── MINI COUNTDOWN lateral por fase ─────────────────────── */
 #mini-countdown {
   display: none;
@@ -1361,6 +1375,7 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
     <div class="hero-unit"><span class="hero-num" id="hero-segs">00</span><span class="hero-lbl">SEG</span></div>
   </div>
 </div>
+<div id="vivo-container" style="display:none"></div>
 <nav class="nav">
     <button class="nav-btn active" onclick="goTab('pronosticos')">PRONÓSTICOS</button>
     <button class="nav-btn" onclick="goTab('resultados')">RESULTADOS</button>
@@ -1723,6 +1738,62 @@ const FLAGS = {
 };
 function getFlag(name){ return FLAGS[name] || '🏳️'; }
 
+let vivoData = {};
+const VENTANA_JUEGO_MS = 2.5 * 60 * 60 * 1000; // ~duración de un partido para el fallback "EN JUEGO"
+
+// Nombres del partido por pid (grupos directo; elim vía adminData.elimEquipos)
+function vivoInfoDePid(pid){
+  let p = partidos.find(x => x.id === pid);
+  if (p) return { local: p.local, visit: p.visit, kickoff: p.kickoff };
+  p = (typeof ELIM !== 'undefined') ? ELIM.find(x => x.id === pid) : null;
+  if (p) return { local: getElimLocal(p), visit: getElimVisit(p), kickoff: p.kickoff };
+  return null;
+}
+
+// pids en ventana de juego según el horario (fallback sin marcador)
+function pidsEnVentana(){
+  const ahora = new Date();
+  const res = [];
+  const todos = partidos.concat(typeof ELIM !== 'undefined' ? ELIM : []);
+  for (const p of todos){
+    if (!(p.kickoff instanceof Date)) continue;
+    const ini = p.kickoff.getTime();
+    if (ahora.getTime() >= ini && ahora.getTime() <= ini + VENTANA_JUEGO_MS) res.push(p.id);
+  }
+  return res;
+}
+
+function renderVivo(){
+  const cont = document.getElementById('vivo-container');
+  if (!cont) return;
+  // Unir pids con marcador en vivo + pids en ventana (fallback), sin duplicar
+  const pids = Array.from(new Set(Object.keys(vivoData || {}).concat(pidsEnVentana())));
+  const cards = [];
+  for (const pid of pids){
+    const info = vivoInfoDePid(pid);
+    if (!info) continue;
+    const live = (vivoData || {})[pid];
+    const score = live ? (live.l + ' - ' + live.v) : 'vs';
+    const min = live
+      ? (live.estado === 'PAUSED' ? 'Entretiempo' : (live.minuto != null ? live.minuto + "'" : 'En juego'))
+      : 'En juego';
+    cards.push(
+      '<div class="vivo-card">' +
+        '<div class="vivo-top"><span class="vivo-dot"></span>En vivo</div>' +
+        '<div class="vivo-row">' +
+          '<div class="vivo-team"><span>' + getFlag(info.local) + '</span><span class="nm">' + escapeHtml(info.local) + '</span></div>' +
+          '<div class="vivo-score">' + escapeHtml(score) + '</div>' +
+          '<div class="vivo-team visit"><span class="nm">' + escapeHtml(info.visit) + '</span><span>' + getFlag(info.visit) + '</span></div>' +
+        '</div>' +
+        '<div class="vivo-min">' + escapeHtml(min) + '</div>' +
+        (live ? '<div class="vivo-nota">el marcador puede demorar unos minutos</div>' : '') +
+      '</div>'
+    );
+  }
+  cont.innerHTML = cards.join('');
+  cont.style.display = cards.length ? 'flex' : 'none';
+}
+
 // Cargar nombres de equipos eliminatorias desde Firebase
 function getElimLabel(p){
   const eq = adminData.elimEquipos && adminData.elimEquipos[p.id];
@@ -1797,6 +1868,7 @@ function cargarDatos(){
     if(document.getElementById('admin-camp')){document.getElementById('admin-camp').value=adminData.campeon||'';document.getElementById('admin-gol').value=adminData.goleador||'';}
   });
   window._onValue(window._ref(window._db,'ranking'),snap=>{rankingData=snap.val()||{};rankingLoaded=true;asegurarEntradaRanking();renderRanking();renderStatusBar();});
+  window._onValue(window._ref(window._db,'enVivo'),snap=>{ vivoData=snap.val()||{}; renderVivo(); });
 }
 
 function saveProno(pid,side,val){
@@ -3112,6 +3184,7 @@ function actualizarCountdown(){
       mini.style.display = 'none';
     }
   }
+  renderVivo();
 }
 
 setInterval(actualizarCountdown, 1000);
