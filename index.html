@@ -80,6 +80,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--gris1);color:var(--negro)
 .match-teams{display:flex;flex-direction:column;gap:7px}
 .match-team{display:flex;align-items:center;gap:8px}
 .match-flag{font-size:16px;width:22px;text-align:center;flex-shrink:0;line-height:1}
+/* Bandera en imagen (Windows no renderiza emojis de bandera). Tamaño en em: se adapta al contexto */
+.flag-img{width:1.3em;height:.87em;object-fit:cover;border-radius:2px;vertical-align:-0.13em;border:1px solid rgba(0,0,0,.15);box-shadow:0 1px 2px rgba(0,0,0,.18);background:#e9e9e9}
+.flag-emoji{line-height:1}
 .match-team-name{font-size:13px;font-weight:600;color:var(--negro);line-height:1}
 .match-inputs{display:flex;flex-direction:column;gap:7px;align-items:center}
 .match-inputs .score-in{width:42px;height:32px;padding:0;font-size:18px}
@@ -1004,8 +1007,8 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
 .vivo-team{display:flex;align-items:center;gap:9px;flex:1;min-width:0}
 .vivo-team.visit{justify-content:flex-end}
 .vivo-flagwrap{flex:none;display:inline-flex}
-.vivo-flag{width:30px;height:20px;object-fit:cover;border-radius:4px;border:1px solid rgba(255,255,255,.14);box-shadow:0 1px 3px rgba(0,0,0,.4);display:block}
-.vivo-flag-emoji{font-size:24px;line-height:1}
+.vivo-flagwrap .flag-img{width:30px;height:20px;border-radius:4px}
+.vivo-flagwrap .flag-emoji{font-size:24px;line-height:1}
 .vivo-team .nm{font-size:15px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vivo-score{display:flex;align-items:center;justify-content:center;gap:8px;min-width:78px;padding:0 6px}
 .vivo-num{font-size:30px;font-weight:900;color:#fff;line-height:1;font-variant-numeric:tabular-nums}
@@ -1766,15 +1769,15 @@ const FLAG_ISO = {
 // Fallback al emoji si la imagen de bandera no carga (sin red, etc.)
 window._flagErr = function(img){
   const s = document.createElement('span');
-  s.className = 'vivo-flag-emoji';
+  s.className = 'flag-emoji';
   s.textContent = img.getAttribute('data-emoji') || '🏳️';
   img.replaceWith(s);
 };
 // <img> de bandera (Windows no renderiza emojis de bandera); cae al emoji si falla
 function getFlagImg(name){
   const iso = FLAG_ISO[name];
-  if(!iso) return '<span class="vivo-flag-emoji">' + getFlag(name) + '</span>';
-  return '<img class="vivo-flag" src="https://flagcdn.com/' + iso + '.svg"' +
+  if(!iso) return '<span class="flag-emoji">' + getFlag(name) + '</span>';
+  return '<img class="flag-img" src="https://flagcdn.com/' + iso + '.svg"' +
          ' alt="" loading="lazy" data-emoji="' + getFlag(name) + '" onerror="_flagErr(this)">';
 }
 
@@ -2091,8 +2094,8 @@ function buildMatchCard(p, localName, visitName, esElim, opts) {
     '<div class="match-strip"></div>' +
     '<div class="match-body">' +
       '<div class="match-teams">' +
-        '<div class="match-team"><span class="match-flag">' + getFlag(localName) + '</span><span class="match-team-name">' + escapeHtml(localName) + '</span></div>' +
-        '<div class="match-team"><span class="match-flag">' + getFlag(visitName) + '</span><span class="match-team-name">' + escapeHtml(visitName) + '</span></div>' +
+        '<div class="match-team"><span class="match-flag">' + getFlagImg(localName) + '</span><span class="match-team-name">' + escapeHtml(localName) + '</span></div>' +
+        '<div class="match-team"><span class="match-flag">' + getFlagImg(visitName) + '</span><span class="match-team-name">' + escapeHtml(visitName) + '</span></div>' +
       '</div>' +
       '<div class="match-inputs">' +
         '<input class="score-in ' + filledClass + '" type="number" min="0" max="20" value="' + lVal + '" placeholder="—" data-pid="' + p.id + '" data-side="l">' +
@@ -2418,7 +2421,7 @@ function mostrarRecapSiCorresponde(rows,myPos,prevPos){
   const cont=document.getElementById('recap-partidos');cont.innerHTML='';
   items.slice(0,8).forEach(it=>{
     const div=document.createElement('div');div.className='recap-match';
-    div.innerHTML='<div><div class="recap-equipos">'+getFlag(it.local)+' '+escapeHtml(it.local)+' <strong>'+it.rL+'-'+it.rV+'</strong> '+escapeHtml(it.visit)+' '+getFlag(it.visit)+'</div>'+
+    div.innerHTML='<div><div class="recap-equipos">'+getFlagImg(it.local)+' '+escapeHtml(it.local)+' <strong>'+it.rL+'-'+it.rV+'</strong> '+escapeHtml(it.visit)+' '+getFlagImg(it.visit)+'</div>'+
       '<div class="recap-prono">'+(isNaN(it.pL)?'No pronosticaste este partido':'Tu pronóstico: '+it.pL+'-'+it.pV)+'</div></div>'+
       '<span class="recap-pts '+it.cls+'">'+it.chip+'</span>';
     cont.appendChild(div);
