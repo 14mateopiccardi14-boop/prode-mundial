@@ -1004,7 +1004,10 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
 .vivo-team .nm{font-size:15px;font-weight:600;color:var(--blanco,#fff);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .vivo-score{font-size:22px;font-weight:800;color:var(--blanco,#fff);min-width:64px;text-align:center}
 .vivo-min{font-size:11px;color:var(--gris3,#888);text-align:center;margin-top:6px}
-.vivo-nota{font-size:10px;color:var(--gris3,#888);text-align:center;margin-top:2px;opacity:.8}
+.vivo-prono{font-size:12px;color:var(--gris3,#aaa);text-align:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--gris2,#2a2a2a)}
+.vivo-prono strong{color:var(--blanco,#fff);font-weight:700}
+.vivo-prono.sin{font-style:italic;opacity:.7}
+.vivo-nota{font-size:10px;color:var(--gris3,#888);text-align:center;margin-top:6px;opacity:.8}
 
 /* ── MINI COUNTDOWN lateral por fase ─────────────────────── */
 #mini-countdown {
@@ -1375,7 +1378,6 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
     <div class="hero-unit"><span class="hero-num" id="hero-segs">00</span><span class="hero-lbl">SEG</span></div>
   </div>
 </div>
-<div id="vivo-container" style="display:none"></div>
 <nav class="nav">
     <button class="nav-btn active" onclick="goTab('pronosticos')">PRONÓSTICOS</button>
     <button class="nav-btn" onclick="goTab('resultados')">RESULTADOS</button>
@@ -1423,6 +1425,8 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
         </div>
         <div class="reglas-nota">Los pronósticos de cada partido se cierran <strong>1 hora antes del comienzo</strong>. Campeón y goleador se cierran al iniciar el primer partido del Mundial.</div>
       </div>
+
+      <div id="vivo-container" style="display:none"></div>
 
       <div id="banner-incompleto" class="banner-incompleto"></div>
       <div id="fixture-container"></div>
@@ -1777,6 +1781,11 @@ function renderVivo(){
     const min = live
       ? (live.estado === 'PAUSED' ? 'Entretiempo' : (live.minuto != null ? live.minuto + "'" : 'En juego'))
       : 'En juego';
+    const pr = (typeof misPronos !== 'undefined' && misPronos) ? (misPronos[pid] || {}) : {};
+    const tieneProno = pr.l != null && pr.v != null;
+    const pronoTxt = tieneProno
+      ? 'Tu pronóstico: <strong>' + escapeHtml(pr.l + ' - ' + pr.v) + '</strong>'
+      : 'No pronosticaste este partido';
     cards.push(
       '<div class="vivo-card">' +
         '<div class="vivo-top"><span class="vivo-dot"></span>En vivo</div>' +
@@ -1786,6 +1795,7 @@ function renderVivo(){
           '<div class="vivo-team visit"><span class="nm">' + escapeHtml(info.visit) + '</span><span>' + getFlag(info.visit) + '</span></div>' +
         '</div>' +
         '<div class="vivo-min">' + escapeHtml(min) + '</div>' +
+        '<div class="vivo-prono ' + (tieneProno ? '' : 'sin') + '">' + pronoTxt + '</div>' +
         (live ? '<div class="vivo-nota">el marcador puede demorar unos minutos</div>' : '') +
       '</div>'
     );
