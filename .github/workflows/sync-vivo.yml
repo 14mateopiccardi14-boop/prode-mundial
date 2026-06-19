@@ -1,0 +1,22 @@
+name: Sync partidos en vivo
+
+on:
+  schedule:
+    # Misma ventana que sync-resultados (12:00-03:30 ART), pero cada 5 min
+    - cron: '*/5 15-23 * * *'
+    - cron: '*/5 0-6 * * *'
+  workflow_dispatch:
+
+jobs:
+  vivo:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install --no-save --no-audit --no-fund firebase-admin
+      - run: node scripts/sync-vivo.js
+        env:
+          FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
+          FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
