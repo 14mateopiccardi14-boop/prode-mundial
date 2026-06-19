@@ -32,6 +32,10 @@
       }
     },
 
+    "enVivo": {
+      ".read": "auth != null && auth.token.email.endsWith('@movistararena.com.ar')"
+    },
+
     "usuarios": {
       ".read": "auth != null && (auth.token.email === 'mateopiccardi@movistararena.com.ar' || auth.token.email === 'federicosegovia@movistararena.com.ar')",
       "$uid": {
