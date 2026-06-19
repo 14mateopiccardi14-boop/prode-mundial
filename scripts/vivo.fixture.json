@@ -1,0 +1,28 @@
+{
+  "matches": [
+    {
+      "id": 537327,
+      "status": "IN_PLAY",
+      "minute": 67,
+      "homeTeam": { "name": "Mexico" },
+      "awayTeam": { "name": "South Africa" },
+      "score": { "fullTime": { "home": 1, "away": 0 } }
+    },
+    {
+      "id": 537328,
+      "status": "PAUSED",
+      "minute": 45,
+      "homeTeam": { "name": "Korea Republic" },
+      "awayTeam": { "name": "Czechia" },
+      "score": { "fullTime": { "home": 0, "away": 0 } }
+    },
+    {
+      "id": 537329,
+      "status": "FINISHED",
+      "minute": 90,
+      "homeTeam": { "name": "Czechia" },
+      "awayTeam": { "name": "South Africa" },
+      "score": { "fullTime": { "home": 2, "away": 1 } }
+    }
+  ]
+}
