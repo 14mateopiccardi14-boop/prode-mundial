@@ -993,21 +993,28 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
 }
 
 /* ── VIVO CARD ────────────────────────────────────────────── */
-#vivo-container{margin:12px auto 0;max-width:560px;padding:0 14px;display:flex;flex-direction:column;gap:8px}
-.vivo-card{background:var(--gris1,#161616);border:1px solid var(--gris2,#2a2a2a);border-radius:14px;padding:12px 14px}
-.vivo-top{display:flex;align-items:center;justify-content:center;gap:6px;font-size:11px;letter-spacing:.08em;color:#e23;text-transform:uppercase;margin-bottom:8px}
-.vivo-dot{width:8px;height:8px;border-radius:50%;background:#e23;animation:vivoPulse 1.2s infinite}
-@keyframes vivoPulse{0%,100%{opacity:1}50%{opacity:.3}}
+#vivo-container{margin:0 0 .75rem;display:flex;flex-direction:column;gap:10px}
+.vivo-card{position:relative;background:linear-gradient(160deg,#1c1c1f 0%,#141416 100%);border:1px solid #2e2e33;border-radius:16px;padding:16px 16px 14px;box-shadow:0 6px 22px rgba(0,0,0,.35);overflow:hidden}
+.vivo-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#e23,#ff5a3c)}
+.vivo-top{display:flex;align-items:center;justify-content:center;gap:8px;font-size:11px;font-weight:800;letter-spacing:.12em;color:#ff5a3c;text-transform:uppercase;margin-bottom:14px}
+.vivo-dot{width:8px;height:8px;border-radius:50%;background:#ff3b2e;box-shadow:0 0 0 0 rgba(255,59,46,.6);animation:vivoPulse 1.4s infinite}
+@keyframes vivoPulse{0%{box-shadow:0 0 0 0 rgba(255,59,46,.55)}70%{box-shadow:0 0 0 7px rgba(255,59,46,0)}100%{box-shadow:0 0 0 0 rgba(255,59,46,0)}}
+.vivo-min-pill{margin-left:4px;padding:2px 8px;border-radius:999px;background:rgba(255,90,60,.14);color:#ff7a5f;font-size:10px;font-weight:800;letter-spacing:.06em}
 .vivo-row{display:flex;align-items:center;justify-content:space-between;gap:10px}
-.vivo-team{display:flex;align-items:center;gap:8px;flex:1;min-width:0}
+.vivo-team{display:flex;align-items:center;gap:9px;flex:1;min-width:0}
 .vivo-team.visit{justify-content:flex-end}
-.vivo-team .nm{font-size:15px;font-weight:600;color:var(--blanco,#fff);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.vivo-score{font-size:22px;font-weight:800;color:var(--blanco,#fff);min-width:64px;text-align:center}
-.vivo-min{font-size:11px;color:var(--gris3,#888);text-align:center;margin-top:6px}
-.vivo-prono{font-size:12px;color:var(--gris3,#aaa);text-align:center;margin-top:8px;padding-top:8px;border-top:1px solid var(--gris2,#2a2a2a)}
-.vivo-prono strong{color:var(--blanco,#fff);font-weight:700}
-.vivo-prono.sin{font-style:italic;opacity:.7}
-.vivo-nota{font-size:10px;color:var(--gris3,#888);text-align:center;margin-top:6px;opacity:.8}
+.vivo-flagwrap{flex:none;display:inline-flex}
+.vivo-flag{width:30px;height:20px;object-fit:cover;border-radius:4px;border:1px solid rgba(255,255,255,.14);box-shadow:0 1px 3px rgba(0,0,0,.4);display:block}
+.vivo-flag-emoji{font-size:24px;line-height:1}
+.vivo-team .nm{font-size:15px;font-weight:700;color:#fff;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.vivo-score{display:flex;align-items:center;justify-content:center;gap:8px;min-width:78px;padding:0 6px}
+.vivo-num{font-size:30px;font-weight:900;color:#fff;line-height:1;font-variant-numeric:tabular-nums}
+.vivo-dash{font-size:18px;font-weight:700;color:#5a5a62}
+.vivo-vs{font-size:15px;font-weight:800;color:#6a6a72;letter-spacing:.08em}
+.vivo-prono{display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:#9a9aa2;text-align:center;margin-top:14px;padding-top:11px;border-top:1px solid #2a2a2e;text-transform:uppercase;letter-spacing:.04em}
+.vivo-prono strong{color:#fff;font-weight:800;font-size:14px;letter-spacing:0}
+.vivo-prono.sin{font-style:italic;text-transform:none;letter-spacing:0;opacity:.65}
+.vivo-nota{font-size:10px;color:#76767e;text-align:center;margin-top:8px;opacity:.85}
 
 /* ── MINI COUNTDOWN lateral por fase ─────────────────────── */
 #mini-countdown {
@@ -1742,6 +1749,35 @@ const FLAGS = {
 };
 function getFlag(name){ return FLAGS[name] || '🏳️'; }
 
+// Codigo ISO para banderas en imagen (Windows no renderiza emojis de bandera)
+const FLAG_ISO = {
+  'Argentina':'ar','Brasil':'br','Francia':'fr','Alemania':'de','España':'es',
+  'Inglaterra':'gb-eng','Portugal':'pt','Países Bajos':'nl','Bélgica':'be','Uruguay':'uy',
+  'México':'mx','EE.UU.':'us','Canadá':'ca','Japón':'jp','Corea del Sur':'kr',
+  'Marruecos':'ma','Senegal':'sn','Nigeria':'ng','Ghana':'gh','Costa de Marfil':'ci',
+  'Egipto':'eg','Argelia':'dz','Camerún':'cm','Congo':'cd','RD Congo':'cd','Cabo Verde':'cv',
+  'Irak':'iq','Noruega':'no','Australia':'au','Nueva Zelanda':'nz','Arabia Saudita':'sa','Irán':'ir',
+  'Qatar':'qa','Uzbekistán':'uz','Jordania':'jo','Colombia':'co','Ecuador':'ec','Paraguay':'py',
+  'Bolivia':'bo','Chile':'cl','Perú':'pe','Venezuela':'ve','Croacia':'hr','Polonia':'pl',
+  'Suiza':'ch','Suecia':'se','Dinamarca':'dk','Austria':'at','Escocia':'gb-sct','Rep. Checa':'cz',
+  'Turquía':'tr','Eslovenia':'si','Bosnia':'ba','Curazao':'cw','Sudáfrica':'za','Haití':'ht',
+  'Túnez':'tn','Panamá':'pa'
+};
+// Fallback al emoji si la imagen de bandera no carga (sin red, etc.)
+window._flagErr = function(img){
+  const s = document.createElement('span');
+  s.className = 'vivo-flag-emoji';
+  s.textContent = img.getAttribute('data-emoji') || '🏳️';
+  img.replaceWith(s);
+};
+// <img> de bandera (Windows no renderiza emojis de bandera); cae al emoji si falla
+function getFlagImg(name){
+  const iso = FLAG_ISO[name];
+  if(!iso) return '<span class="vivo-flag-emoji">' + getFlag(name) + '</span>';
+  return '<img class="vivo-flag" src="https://flagcdn.com/' + iso + '.svg"' +
+         ' alt="" loading="lazy" data-emoji="' + getFlag(name) + '" onerror="_flagErr(this)">';
+}
+
 let vivoData = {};
 const VENTANA_JUEGO_MS = 2.5 * 60 * 60 * 1000; // ~duración de un partido para el fallback "EN JUEGO"
 
@@ -1777,24 +1813,27 @@ function renderVivo(){
     const info = vivoInfoDePid(pid);
     if (!info) continue;
     const live = (vivoData || {})[pid];
-    const score = live ? (live.l + ' - ' + live.v) : 'vs';
+    const scoreL = live ? live.l : null;
+    const scoreV = live ? live.v : null;
     const min = live
-      ? (live.estado === 'PAUSED' ? 'Entretiempo' : (live.minuto != null ? live.minuto + "'" : 'En juego'))
-      : 'En juego';
+      ? (live.estado === 'PAUSED' ? 'ENTRETIEMPO' : (live.minuto != null ? live.minuto + "'" : 'EN JUEGO'))
+      : 'EN JUEGO';
     const pr = (typeof misPronos !== 'undefined' && misPronos) ? (misPronos[pid] || {}) : {};
     const tieneProno = pr.l != null && pr.v != null;
     const pronoTxt = tieneProno
-      ? 'Tu pronóstico: <strong>' + escapeHtml(pr.l + ' - ' + pr.v) + '</strong>'
+      ? 'Tu pronóstico <strong>' + escapeHtml(pr.l + '-' + pr.v) + '</strong>'
       : 'No pronosticaste este partido';
+    const scoreBox = live
+      ? '<span class="vivo-num">' + escapeHtml(String(scoreL)) + '</span><span class="vivo-dash">–</span><span class="vivo-num">' + escapeHtml(String(scoreV)) + '</span>'
+      : '<span class="vivo-vs">VS</span>';
     cards.push(
       '<div class="vivo-card">' +
-        '<div class="vivo-top"><span class="vivo-dot"></span>En vivo</div>' +
+        '<div class="vivo-top"><span class="vivo-dot"></span>EN VIVO<span class="vivo-min-pill">' + escapeHtml(min) + '</span></div>' +
         '<div class="vivo-row">' +
-          '<div class="vivo-team"><span>' + getFlag(info.local) + '</span><span class="nm">' + escapeHtml(info.local) + '</span></div>' +
-          '<div class="vivo-score">' + escapeHtml(score) + '</div>' +
-          '<div class="vivo-team visit"><span class="nm">' + escapeHtml(info.visit) + '</span><span>' + getFlag(info.visit) + '</span></div>' +
+          '<div class="vivo-team"><span class="vivo-flagwrap">' + getFlagImg(info.local) + '</span><span class="nm">' + escapeHtml(info.local) + '</span></div>' +
+          '<div class="vivo-score">' + scoreBox + '</div>' +
+          '<div class="vivo-team visit"><span class="nm">' + escapeHtml(info.visit) + '</span><span class="vivo-flagwrap">' + getFlagImg(info.visit) + '</span></div>' +
         '</div>' +
-        '<div class="vivo-min">' + escapeHtml(min) + '</div>' +
         '<div class="vivo-prono ' + (tieneProno ? '' : 'sin') + '">' + pronoTxt + '</div>' +
         (live ? '<div class="vivo-nota">el marcador puede demorar unos minutos</div>' : '') +
       '</div>'
