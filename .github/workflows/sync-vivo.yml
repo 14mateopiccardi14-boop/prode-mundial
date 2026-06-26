@@ -2,21 +2,32 @@ name: Sync partidos en vivo
 
 on:
   schedule:
-    # Misma ventana que sync-resultados (12:00-03:30 ART), pero cada 5 min
-    - cron: '*/5 15-23 * * *'
-    - cron: '*/5 0-6 * * *'
+    # Ventana de partidos (12:00-03:30 ART). Cada corrida hace su propio loop
+    # interno de ~30s, asi que el cron solo necesita ARRANCAR un job seguido;
+    # */15 + concurrency encadenada da cobertura casi continua aunque GitHub
+    # retrase los disparos (lo hace bastante en repos publicos).
+    - cron: '*/15 15-23 * * *'
+    - cron: '*/15 0-6 * * *'
   workflow_dispatch:
+
+# Un solo job a la vez; el siguiente queda pendiente y arranca apenas termina el
+# anterior (no cancela), encadenando cobertura sin solapar llamadas a la API.
+concurrency:
+  group: sync-vivo
+  cancel-in-progress: false
 
 jobs:
   vivo:
     runs-on: ubuntu-latest
+    timeout-minutes: 35
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
           node-version: 20
       - run: npm install --no-save --no-audit --no-fund firebase-admin
-      - run: node scripts/sync-vivo.js
+      # Loop interno: consulta cada 30s durante 30 min y escribe enVivo solo si cambio.
+      - run: node scripts/sync-vivo.js --loop 30 30
         env:
           FOOTBALL_DATA_TOKEN: ${{ secrets.FOOTBALL_DATA_TOKEN }}
           FIREBASE_SERVICE_ACCOUNT: ${{ secrets.FIREBASE_SERVICE_ACCOUNT }}
