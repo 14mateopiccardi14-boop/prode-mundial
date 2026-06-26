@@ -2754,19 +2754,32 @@ function getFaseActual() {
   return { estado: 'finalizado', fase: null };
 }
 
+// Fecha en que cada fase se abre SOLA, sin depender del toggle del admin.
+// Reusa FASES[].inicio salvo 'final': el partido por el 3er puesto (e30) se juega
+// el 18/7, así que la fase Final tiene que abrir el 18, no el 19 (si no, e30
+// quedaría bloqueado y nadie podría pronosticarlo).
+const FASE_AUTO_APERTURA = (() => {
+  const m = {};
+  FASES.forEach(f => { if (f.id !== 'grupos') m[f.id] = f.inicio; });
+  m['final'] = new Date('2026-07-18T00:00:00-03:00');
+  return m;
+})();
+
 function esFaseHabilitada(faseId) {
-  // Por defecto todas las fases están abiertas
-  // El admin puede bloquearlas manualmente desde el panel
+  // Auto-apertura por fecha: al llegar su fecha de inicio la fase se abre sola,
+  // aunque el admin nunca toque el toggle (o lo haya dejado en false de antes).
+  const apertura = FASE_AUTO_APERTURA[faseId];
+  if (apertura && new Date() >= apertura) return true;
+  // Antes de su fecha (o fases sin fecha, como grupos): vale el toggle manual,
+  // que permite abrir antes de tiempo o cerrar grupos.
   const manual = adminData.fasesHabilitadas;
   if (manual && manual.hasOwnProperty(faseId)) return manual[faseId];
-  return true; // abierto por defecto
+  // Default: una fase con fecha futura nace cerrada; las sin fecha, abiertas.
+  return !apertura;
 }
 
 function esFaseCerrada(faseId) {
-  // Cerrada solo si el admin la bloqueó explícitamente
-  const manual = adminData.fasesHabilitadas;
-  if (manual && manual.hasOwnProperty(faseId)) return !manual[faseId];
-  return false; // abierta por defecto
+  return !esFaseHabilitada(faseId);
 }
 
 function diasRestantes(fechaTarget) {
@@ -2798,7 +2811,7 @@ const FECHA_APERTURA = {
   '16avos':  '4 de julio',
   'cuartos': '9 de julio',
   'semis':   '14 de julio',
-  'final':   '19 de julio',
+  'final':   '18 de julio',
 };
 
 function aplicarBloqueoFases() {
@@ -2974,7 +2987,7 @@ const FASES_ADMIN = [
   {id:'16avos',  nombre:'Octavos de Final',         fecha:'4 jul — 7 jul'},
   {id:'cuartos', nombre:'Cuartos de Final',         fecha:'9 jul — 11 jul'},
   {id:'semis',   nombre:'Semifinales',              fecha:'14 jul — 15 jul'},
-  {id:'final',   nombre:'Final',                    fecha:'19 jul'},
+  {id:'final',   nombre:'Final',                    fecha:'18 jul — 19 jul'},
 ];
 
 function renderAdminFases(){
@@ -2983,14 +2996,17 @@ function renderAdminFases(){
   const fasesHabilitadas = adminData.fasesHabilitadas || {};
   lista.innerHTML = '';
   FASES_ADMIN.forEach(f => {
-    const manual = fasesHabilitadas.hasOwnProperty(f.id);
-    const checked = fasesHabilitadas.hasOwnProperty(f.id) ? fasesHabilitadas[f.id] : true;
+    // Reflejar el estado EFECTIVO (incluye auto-apertura por fecha), no solo el
+    // toggle guardado: si la fase ya se abrió sola, el panel lo muestra como abierta.
+    const checked = esFaseHabilitada(f.id);
+    const auto = FASE_AUTO_APERTURA[f.id] && new Date() >= FASE_AUTO_APERTURA[f.id];
+    const estadoTxt = checked ? (auto ? 'abierta (automática)' : 'abierta') : 'bloqueada';
     const row = document.createElement('div');
     row.className = 'fase-toggle-row';
     row.innerHTML = `
       <div class="fase-toggle-info">
         <span class="fase-toggle-nombre">${f.nombre}</span>
-        <span class="fase-toggle-fecha">${f.fecha} — ${checked ? 'abierta' : 'bloqueada'}</span>
+        <span class="fase-toggle-fecha">${f.fecha} — ${estadoTxt}</span>
       </div>
       <label class="toggle-switch">
         <input type="checkbox" id="toggle-${f.id}" ${checked ? 'checked' : ''}>
