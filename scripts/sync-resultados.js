@@ -137,7 +137,8 @@ async function main() {
   if (dry) { console.log(JSON.stringify(upd, null, 1)); return; }
   await db.ref().update(upd);
   console.log('Sincronizado OK.');
-  process.exit(0); // firebase-admin deja el socket abierto
 }
 
-main().catch(err => { console.error(err); process.exit(1); });
+// firebase-admin deja el socket abierto: forzamos la salida en TODOS los caminos
+// (incluido "Sin novedades"), si no la corrida queda colgada hasta el timeout de 6h.
+main().then(() => process.exit(0)).catch(err => { console.error(err); process.exit(1); });
