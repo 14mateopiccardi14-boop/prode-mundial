@@ -1433,7 +1433,7 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
           <div class="regla-chip"><span class="pts">+9 pts</span><span>Campeón acertado</span></div>
           <div class="regla-chip"><span class="pts">+9 pts</span><span>Goleador acertado</span></div>
         </div>
-        <div class="reglas-nota">Los pronósticos de cada partido se cierran <strong>1 hora antes del comienzo</strong>. Campeón y goleador se cierran al iniciar el primer partido del Mundial.</div>
+        <div class="reglas-nota">Los pronósticos de cada partido se cierran <strong>10 minutos antes del comienzo</strong>. Campeón y goleador se cierran al iniciar el primer partido del Mundial.</div>
       </div>
 
       <div id="vivo-container" style="display:none"></div>
@@ -1572,7 +1572,7 @@ const ADMIN_EMAILS=['mateopiccardi@movistararena.com.ar','federicosegovia@movist
 function esAdmin(){ return currentUser && ADMIN_EMAILS.includes(currentUser.email); }
 function escapeHtml(s){ const d=document.createElement('div'); d.textContent=s==null?'':String(s); return d.innerHTML; }
 function safePhotoUrl(u){ return (typeof u==='string' && /^https:\/\//i.test(u)) ? u : ''; }
-const DEADLINE_BUFFER_MS = 60 * 60 * 1000; // pronóstico cierra 1h antes del kickoff
+const DEADLINE_BUFFER_MS = 10 * 60 * 1000; // pronóstico cierra 10 min antes del kickoff
 function matchDeadline(p){ return (p && p.kickoff instanceof Date) ? new Date(p.kickoff.getTime() - DEADLINE_BUFFER_MS) : null; }
 function matchClosed(p){ const d = matchDeadline(p); return d ? (new Date() >= d) : false; }
 // Para elim: sólo lo consideramos "listo para pronosticar" cuando el admin cargó ambos equipos
@@ -2835,7 +2835,7 @@ function aplicarBloqueoFases() {
       card.querySelectorAll('.score-in').forEach(i => i.disabled = true);
       card.querySelectorAll('.match-card').forEach(mc => mc.classList.add('mc-locked'));
     } else {
-      // Por-partido: cerrar sólo los que ya pasaron deadline (kickoff − 1h)
+      // Por-partido: cerrar sólo los que ya pasaron deadline (kickoff − 10 min)
       card.querySelectorAll('.match-card').forEach(mc => {
         const inp = mc.querySelector('.score-in[data-pid]');
         if (!inp) return;
@@ -2911,7 +2911,7 @@ function aplicarBloqueoFases() {
       h.textContent = textoBase + ' 🔒';
     } else {
       h.textContent = textoBase + ' ✅';
-      // Per-partido: cerrar sólo los que pasaron deadline (kickoff − 1h)
+      // Per-partido: cerrar sólo los que pasaron deadline (kickoff − 10 min)
       card.querySelectorAll('.match-card').forEach(mc => {
         const inp = mc.querySelector('.score-in[data-pid]');
         if (!inp) return;
@@ -3507,7 +3507,7 @@ function limpiarResultadosPrueba(){
     <div class="ayuda-seccion-titulo">Tips</div>
     <div class="ayuda-tips">
       <div class="ayuda-tip">Los pronósticos se guardan automáticamente al escribir, no hace falta confirmar nada.</div>
-      <div class="ayuda-tip">Podés cambiar tus pronósticos de cada partido hasta <strong>1 hora antes</strong> del kickoff. Después se bloquea automáticamente y aparece un candado 🔒.</div>
+      <div class="ayuda-tip">Podés cambiar tus pronósticos de cada partido hasta <strong>10 minutos antes</strong> del kickoff. Después se bloquea automáticamente y aparece un candado 🔒.</div>
       <div class="ayuda-tip">Las filas doradas en el ranking indican resultados exactos; las grises, solo ganador correcto.</div>
     </div>
   </div>

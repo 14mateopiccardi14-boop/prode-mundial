@@ -98,9 +98,10 @@ async function main() {
     }
 
     if (m.status !== 'FINISHED') continue;
-    const ft = m.score && m.score.fullTime;
+    // Contamos por el tiempo reglamentario (90 min). Si el partido fue a alargue/penales,
+    // score.regularTime trae el resultado a los 90; si no, fullTime ya es el de los 90.
+    const ft = m.score && (m.score.regularTime || m.score.fullTime);
     if (!ft || ft.home == null || ft.away == null) continue;
-    // Con penales, fullTime es el resultado tras los 120 minutos (sin contar la tanda)
     const actual = resultados[pid] || {};
     if (actual.l == null && actual.v == null) {
       upd['admin/resultados/' + pid + '/l'] = ft.home;
