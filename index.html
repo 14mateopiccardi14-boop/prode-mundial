@@ -1321,7 +1321,7 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
     <div class="regla-item"><span class="regla-pts">+3 pts</span><span>Resultado exacto (marcador correcto)</span></div>
     <div class="regla-item"><span class="regla-pts">+1 pt</span><span>Ganador o empate correcto</span></div>
     <div class="regla-item"><span class="regla-pts">+4 pts</span><span>Resultado exacto en eliminatorias</span></div>
-    <div class="regla-item"><span class="regla-pts">+2 pts</span><span>Ganador correcto en eliminatorias</span></div>
+    <div class="regla-item"><span class="regla-pts">+2 pts</span><span>Resultado 120' correcto en eliminatorias</span></div>
     <div class="regla-item"><span class="regla-pts">+9 pts</span><span>Campeón del mundo acertado</span></div>
     <div class="regla-item"><span class="regla-pts">+9 pts</span><span>Goleador del torneo acertado</span></div>
     <div class="modal-fechas">
@@ -1429,7 +1429,7 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
           <div class="regla-chip"><span class="pts">+3 pts</span><span>Resultado exacto</span></div>
           <div class="regla-chip"><span class="pts">+1 pt</span><span>Ganador correcto</span></div>
           <div class="regla-chip"><span class="pts elim">+4 pts</span><span>Exacto eliminatorias</span></div>
-          <div class="regla-chip"><span class="pts elim">+2 pts</span><span>Ganador eliminatorias</span></div>
+          <div class="regla-chip"><span class="pts elim">+2 pts</span><span>Resultado 120' eliminatorias</span></div>
           <div class="regla-chip"><span class="pts">+9 pts</span><span>Campeón acertado</span></div>
           <div class="regla-chip"><span class="pts">+9 pts</span><span>Goleador acertado</span></div>
         </div>
@@ -1452,7 +1452,7 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
     <div id="tab-ranking" style="display:none">
       <div class="card">
         <div class="notice notice-ok">Ranking en tiempo real. Se actualiza con cada resultado que carga el admin.</div>
-        <div class="notice notice-info"><strong>Puntaje:</strong> Exacto = 3 pts | Ganador/empate = 1 pt | Eliminatorias: exacto = 4 pts | ganador = 2 pts | Campeón = 9 pts | Goleador = 9 pts</div>
+        <div class="notice notice-info"><strong>Puntaje:</strong> Exacto = 3 pts | Ganador/empate = 1 pt | Eliminatorias: exacto = 4 pts | resultado 120' = 2 pts | Campeón = 9 pts | Goleador = 9 pts</div>
         <div class="rank-wrap">
           <table class="rank-table">
             <thead><tr><th class="c" style="width:40px">Pos.</th><th>Participante</th><th class="c">Grupos</th><th class="c">Elim.</th><th class="c">Bonus</th><th class="c">Total</th></tr></thead>
@@ -2081,7 +2081,7 @@ function buildMatchCard(p, localName, visitName, esElim, opts) {
   const mcClass = hasPron ? 'mc-saved' : 'mc-pending';
   const filledClass = hasPron ? 'mc-filled' : '';
   const ptsLabel = esElim
-    ? 'Exacto <span>+4</span> · Ganador <span>+2</span>'
+    ? 'Exacto <span>+4</span> · Resultado 120\' <span>+2</span>'
     : 'Exacto <span>+3</span> · Ganador <span>+1</span>';
   // staticChip: usado por la sección "Próximos a cerrar" para evitar duplicar el id chip-{pid}
   const chipMarkup = opts.staticChip
@@ -3479,7 +3479,7 @@ function limpiarResultadosPrueba(){
       <tr><td>+3 pts</td><td>Resultado exacto en fase de grupos</td></tr>
       <tr><td>+1 pt</td><td>Ganador o empate correcto en grupos</td></tr>
       <tr class="elim-row"><td>+4 pts</td><td>Resultado exacto en eliminatorias</td></tr>
-      <tr class="elim-row"><td>+2 pts</td><td>Ganador correcto en eliminatorias</td></tr>
+      <tr class="elim-row"><td>+2 pts</td><td>Resultado 120' correcto en eliminatorias</td></tr>
       <tr><td>+9 pts</td><td>Campeón del mundo acertado</td></tr>
       <tr><td>+9 pts</td><td>Goleador del torneo acertado</td></tr>
     </table>
