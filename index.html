@@ -185,6 +185,10 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
   margin-top:0;
 }
 .etapa-header--prox::after{background:linear-gradient(90deg,transparent,rgba(255,255,255,.12))}
+.etapa-toggle{cursor:pointer;user-select:none;justify-content:space-between}
+.etapa-toggle .grupo-toggle-right{position:relative;z-index:1}
+.etapa-chevron{font-size:11px;color:var(--dorado);transition:transform .2s;display:inline-block}
+.etapa-toggle.collapsed .etapa-chevron{transform:rotate(-90deg)}
 .grupo-header{display:flex;align-items:center;gap:.5rem;margin-bottom:.6rem}
 .grupo-toggle{cursor:pointer;user-select:none;justify-content:space-between;margin-bottom:0;padding:6px 4px 8px;border-bottom:1px solid var(--gris1);transition:background .15s}
 .grupo-toggle:hover{background:rgba(0,0,0,.02)}
@@ -2146,7 +2150,25 @@ function renderFixture(){
 
   renderProximos(cont);
 
-  const hg=document.createElement('div');hg.className='etapa-header';hg.textContent='FASE DE GRUPOS';cont.appendChild(hg);
+  // ── FASE DE GRUPOS: sección colapsable, cerrada por defecto para ver elim directo ──
+  let gTot=0,gDone=0;
+  Object.keys(GRUPOS).forEach(g=>{GRUPOS[g].forEach(m=>{gTot++;const p=partidos.find(x=>x.grupo===g&&x.local===m.local&&x.visit===m.visit);if(p&&misPronos[p.id]&&misPronos[p.id].l!=null&&misPronos[p.id].v!=null)gDone++;});});
+  const gBadge=gDone===gTot
+    ? '<span class="grupo-progress grupo-done">✓ '+gTot+'/'+gTot+'</span>'
+    : '<span class="grupo-progress">'+gDone+'/'+gTot+'</span>';
+  const gKey='prode_fase_grupos_open';
+  const gAbierto=localStorage.getItem(gKey)==='1'; // default: cerrada
+  const hg=document.createElement('div');
+  hg.className='etapa-header etapa-toggle'+(gAbierto?'':' collapsed');
+  hg.innerHTML='<span>FASE DE GRUPOS</span><span class="grupo-toggle-right">'+gBadge+'<span class="etapa-chevron">▼</span></span>';
+  cont.appendChild(hg);
+  const gWrap=document.createElement('div');
+  if(!gAbierto)gWrap.style.display='none';
+  cont.appendChild(gWrap);
+  hg.addEventListener('click',()=>{
+    if(hg.classList.contains('collapsed')){gWrap.style.display='';hg.classList.remove('collapsed');localStorage.setItem(gKey,'1');}
+    else{gWrap.style.display='none';hg.classList.add('collapsed');localStorage.setItem(gKey,'0');}
+  });
   Object.keys(GRUPOS).forEach(g=>{
     const card=document.createElement('div');card.className='card grupo-card';
     // Contar completados en este grupo
@@ -2195,7 +2217,7 @@ function renderFixture(){
         localStorage.setItem(lsKey, '1');
       }
     });
-    cont.appendChild(card);
+    gWrap.appendChild(card);
   });
 
   const etapas=[...new Set(ELIM.map(p=>p.etapa))];
