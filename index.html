@@ -2488,8 +2488,8 @@ function mostrarRecapSiCorresponde(rows,myPos,prevPos){
   const items=nuevos.map(p=>{
     const real=reales[p.id],pr=misPronos[p.id]||{};
     const esElim=String(p.id).startsWith('e');
-    const local=p.esGrupo!==false?p.local:getElimLocal(p);
-    const visit=p.esGrupo!==false?p.visit:getElimVisit(p);
+    const local=esElim?getElimLocal(p):p.local;
+    const visit=esElim?getElimVisit(p):p.visit;
     const pL=parseInt(pr.l),pV=parseInt(pr.v),rL=parseInt(real.l),rV=parseInt(real.v);
     let chip,cls,g=0;
     if(isNaN(pL)||isNaN(pV)){chip='SIN PRONO';cls='nada';}
