@@ -751,6 +751,9 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
 .select-field{flex:1;padding:9px 12px;border:1.5px solid var(--gris2);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;color:var(--negro);background:var(--gris1);cursor:pointer}
 .select-field:focus{outline:none;border-color:var(--negro)}
 .btn-export{padding:9px 18px;background:var(--dorado);color:var(--negro);border:none;border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;white-space:nowrap}
+.btn-compartir{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;margin-top:.85rem;padding:12px 18px;background:var(--negro);color:var(--blanco);border:1px solid var(--dorado);border-radius:8px;font-family:'Bebas Neue',sans-serif;font-size:16px;letter-spacing:.06em;cursor:pointer;transition:background .15s}
+.btn-compartir:hover{background:var(--negro2)}
+.btn-compartir:disabled{opacity:.6;cursor:default}
 .btn-export:hover{opacity:.9}
 
 /* ── COUNTDOWN ──────────────────────────────────────────────── */
@@ -1321,9 +1324,10 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
     <div class="regla-item"><span class="regla-pts">+3 pts</span><span>Resultado exacto (marcador correcto)</span></div>
     <div class="regla-item"><span class="regla-pts">+1 pt</span><span>Ganador o empate correcto</span></div>
     <div class="regla-item"><span class="regla-pts">+4 pts</span><span>Resultado exacto en eliminatorias</span></div>
-    <div class="regla-item"><span class="regla-pts">+2 pts</span><span>Resultado 120' correcto en eliminatorias</span></div>
+    <div class="regla-item"><span class="regla-pts">+2 pts</span><span>Ganador a los 120' en eliminatorias</span></div>
     <div class="regla-item"><span class="regla-pts">+9 pts</span><span>Campeón del mundo acertado</span></div>
     <div class="regla-item"><span class="regla-pts">+9 pts</span><span>Goleador del torneo acertado</span></div>
+    <p style="font-size:11px;color:var(--gris3);text-align:center;margin:.4rem 0 0">En eliminatorias se cuenta el resultado a los <strong>120'</strong> (con alargue). La tanda de penales no suma.</p>
     <div class="modal-fechas">
       <div class="modal-fecha-row"><span>Cierre pronósticos grupos</span><strong>11 de junio</strong></div>
       <div class="modal-fecha-row"><span>Dieciseisavos</span><strong>28 de junio</strong></div>
@@ -1429,11 +1433,11 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
           <div class="regla-chip"><span class="pts">+3 pts</span><span>Resultado exacto</span></div>
           <div class="regla-chip"><span class="pts">+1 pt</span><span>Ganador correcto</span></div>
           <div class="regla-chip"><span class="pts elim">+4 pts</span><span>Exacto eliminatorias</span></div>
-          <div class="regla-chip"><span class="pts elim">+2 pts</span><span>Resultado 120' eliminatorias</span></div>
+          <div class="regla-chip"><span class="pts elim">+2 pts</span><span>Ganador a los 120'</span></div>
           <div class="regla-chip"><span class="pts">+9 pts</span><span>Campeón acertado</span></div>
           <div class="regla-chip"><span class="pts">+9 pts</span><span>Goleador acertado</span></div>
         </div>
-        <div class="reglas-nota">Los pronósticos de cada partido se cierran <strong>10 minutos antes del comienzo</strong>. Campeón y goleador se cierran al iniciar el primer partido del Mundial.</div>
+        <div class="reglas-nota">Los pronósticos de cada partido se cierran <strong>10 minutos antes del comienzo</strong>. Campeón y goleador se cierran al iniciar el primer partido del Mundial. En eliminatorias cuenta el resultado a los <strong>120'</strong> (con alargue); los penales no suman.</div>
       </div>
 
       <div id="vivo-container" style="display:none"></div>
@@ -1452,13 +1456,14 @@ select.input-field{cursor:pointer;appearance:none;background-image:url("data:ima
     <div id="tab-ranking" style="display:none">
       <div class="card">
         <div class="notice notice-ok">Ranking en tiempo real. Se actualiza con cada resultado que carga el admin.</div>
-        <div class="notice notice-info"><strong>Puntaje:</strong> Exacto = 3 pts | Ganador/empate = 1 pt | Eliminatorias: exacto = 4 pts | resultado 120' = 2 pts | Campeón = 9 pts | Goleador = 9 pts</div>
+        <div class="notice notice-info"><strong>Puntaje:</strong> Exacto = 3 pts | Ganador/empate = 1 pt | Eliminatorias: exacto = 4 pts | ganador a los 120' = 2 pts | Campeón = 9 pts | Goleador = 9 pts</div>
         <div class="rank-wrap">
           <table class="rank-table">
             <thead><tr><th class="c" style="width:40px">Pos.</th><th>Participante</th><th class="c">Grupos</th><th class="c">Elim.</th><th class="c">Bonus</th><th class="c">Total</th></tr></thead>
             <tbody id="ranking-body"><tr><td colspan="6" class="empty">Cargando...</td></tr></tbody>
           </table>
         </div>
+        <button class="btn-compartir" id="btn-compartir" onclick="compartirPosicion()">📲 Compartir mi posición</button>
       </div>
     </div>
     <div id="tab-admin" style="display:none">
@@ -2081,7 +2086,7 @@ function buildMatchCard(p, localName, visitName, esElim, opts) {
   const mcClass = hasPron ? 'mc-saved' : 'mc-pending';
   const filledClass = hasPron ? 'mc-filled' : '';
   const ptsLabel = esElim
-    ? 'Exacto <span>+4</span> · Resultado 120\' <span>+2</span>'
+    ? 'Exacto <span>+4</span> · Ganador 120\' <span>+2</span>'
     : 'Exacto <span>+3</span> · Ganador <span>+1</span>';
   // staticChip: usado por la sección "Próximos a cerrar" para evitar duplicar el id chip-{pid}
   const chipMarkup = opts.staticChip
@@ -2315,7 +2320,84 @@ function compararRanking(a,b){
   if ((b.total||0) !== (a.total||0)) return (b.total||0) - (a.total||0);
   if ((b.ptsBonus||0) !== (a.ptsBonus||0)) return (b.ptsBonus||0) - (a.ptsBonus||0);
   if ((b.exactos||0) !== (a.exactos||0)) return (b.exactos||0) - (a.exactos||0);
+  if ((b.ptsElim||0) !== (a.ptsElim||0)) return (b.ptsElim||0) - (a.ptsElim||0);
   return (a.tsRegistro||a.ts||0) - (b.tsRegistro||b.ts||0);
+}
+
+// ── COMPARTIR POSICIÓN (tarjeta PNG para WhatsApp) ──
+function _rrect(ctx,x,y,w,h,r){ctx.beginPath();ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath();}
+async function compartirPosicion(){
+  const btn=document.getElementById('btn-compartir');
+  const rows=Object.entries(rankingData).map(([uid,d])=>Object.assign({},d,{uid})).sort(compararRanking);
+  const myUid=uidKey();
+  const myPos=rows.findIndex(r=>r.uid===myUid);
+  if(myPos===-1){ mostrarToast('Todavía no estás en el ranking'); return; }
+  const me=rows[myPos];
+  const nombre=(me.nombre||(currentUser&&currentUser.displayName)||'Participante').trim();
+  if(btn){btn.disabled=true;}
+  try{
+    try{ if(document.fonts&&document.fonts.ready) await document.fonts.ready; }catch(_){}
+    const W=1080,H=1350,c=document.createElement('canvas');c.width=W;c.height=H;
+    const ctx=c.getContext('2d');
+    // Fondo
+    const g=ctx.createLinearGradient(0,0,0,H);g.addColorStop(0,'#0A0A0A');g.addColorStop(1,'#1A1A1A');
+    ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+    // Marco dorado
+    ctx.strokeStyle='#C8A020';ctx.lineWidth=6;_rrect(ctx,34,34,W-68,H-68,28);ctx.stroke();
+    ctx.textAlign='center';
+    // Cabecera
+    ctx.fillStyle='#C8A020';ctx.font='600 30px "DM Sans",sans-serif';
+    ctx.fillText('P R O D E   M U N D I A L   ·   2 0 2 6',W/2,150);
+    ctx.fillStyle='#999999';ctx.font='400 26px "DM Sans",sans-serif';
+    ctx.fillText('Movistar Arena',W/2,196);
+    // Línea
+    ctx.strokeStyle='rgba(200,160,32,.35)';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(W/2-140,236);ctx.lineTo(W/2+140,236);ctx.stroke();
+    // Etiqueta
+    ctx.fillStyle='#999999';ctx.font='400 30px "DM Sans",sans-serif';
+    ctx.fillText('MI POSICIÓN',W/2,330);
+    // Número de posición
+    const medalla=myPos===0?'🥇':myPos===1?'🥈':myPos===2?'🥉':'';
+    ctx.fillStyle='#F0C040';ctx.font='400 300px "Bebas Neue",sans-serif';
+    ctx.fillText('#'+(myPos+1),W/2,640);
+    if(medalla){ctx.font='110px "DM Sans",sans-serif';ctx.fillText(medalla,W/2,760);}
+    // de N participantes
+    ctx.fillStyle='#999999';ctx.font='400 30px "DM Sans",sans-serif';
+    ctx.fillText('de '+rows.length+' participantes',W/2,medalla?830:770);
+    // Nombre
+    ctx.fillStyle='#FFFFFF';ctx.font='400 64px "Bebas Neue",sans-serif';
+    let nm=nombre; if(ctx.measureText(nm).width>W-160){ while(ctx.measureText(nm+'…').width>W-160 && nm.length>1) nm=nm.slice(0,-1); nm+='…'; }
+    ctx.fillText(nm,W/2,medalla?930:880);
+    // Total puntos (badge)
+    const bw=420,bh=120,bx=(W-bw)/2,by=medalla?975:925;
+    ctx.fillStyle='#C8A020';_rrect(ctx,bx,by,bw,bh,16);ctx.fill();
+    ctx.fillStyle='#0A0A0A';ctx.font='400 92px "Bebas Neue",sans-serif';
+    ctx.textBaseline='middle';ctx.fillText((me.total||0)+' PTS',W/2,by+bh/2+4);
+    ctx.textBaseline='alphabetic';
+    // Stats
+    const stats=[['Exactos',me.exactos||0],['Grupos',me.ptsGrupos||0],['Elim.',me.ptsElim||0],['Bonus',me.ptsBonus||0]];
+    const sy=medalla?1190:1140, sw=W/stats.length;
+    stats.forEach((s,i)=>{
+      const cx=sw*i+sw/2;
+      ctx.fillStyle='#F0C040';ctx.font='400 66px "Bebas Neue",sans-serif';ctx.fillText(s[1],cx,sy);
+      ctx.fillStyle='#999999';ctx.font='400 24px "DM Sans",sans-serif';ctx.fillText(s[0].toUpperCase(),cx,sy+40);
+    });
+    // Pie
+    ctx.fillStyle='rgba(200,160,32,.7)';ctx.font='400 26px "DM Sans",sans-serif';
+    ctx.fillText('prode-ba-arena.web.app',W/2,H-60);
+    // Exportar / compartir
+    const blob=await new Promise(res=>c.toBlob(res,'image/png'));
+    if(!blob){ mostrarToast('No se pudo generar la imagen'); return; }
+    const file=new File([blob],'mi-posicion-prode.png',{type:'image/png'});
+    const txt='¡Voy '+(myPos+1)+'° con '+(me.total||0)+' pts en el PRODE Mundial 2026! 🏆';
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      try{ await navigator.share({files:[file],title:'PRODE Mundial 2026',text:txt}); }
+      catch(e){ /* el usuario canceló */ }
+    }else{
+      const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='mi-posicion-prode.png';document.body.appendChild(a);a.click();a.remove();URL.revokeObjectURL(url);
+      mostrarToast('📥 Imagen descargada — compartila por WhatsApp');
+    }
+  }catch(e){ console.error(e); mostrarToast('No se pudo generar la tarjeta'); }
+  finally{ if(btn){btn.disabled=false;} }
 }
 
 function renderRanking(){
@@ -3479,7 +3561,7 @@ function limpiarResultadosPrueba(){
       <tr><td>+3 pts</td><td>Resultado exacto en fase de grupos</td></tr>
       <tr><td>+1 pt</td><td>Ganador o empate correcto en grupos</td></tr>
       <tr class="elim-row"><td>+4 pts</td><td>Resultado exacto en eliminatorias</td></tr>
-      <tr class="elim-row"><td>+2 pts</td><td>Resultado 120' correcto en eliminatorias</td></tr>
+      <tr class="elim-row"><td>+2 pts</td><td>Ganador a los 120' en eliminatorias</td></tr>
       <tr><td>+9 pts</td><td>Campeón del mundo acertado</td></tr>
       <tr><td>+9 pts</td><td>Goleador del torneo acertado</td></tr>
     </table>
