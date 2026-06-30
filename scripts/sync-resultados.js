@@ -98,16 +98,22 @@ async function main() {
     }
 
     if (m.status !== 'FINISHED') continue;
-    const ft = m.score && m.score.fullTime;
+    // Resultado 120': reglamentario + alargue, SIN la tanda de penales.
+    // OJO: la API mete los penales dentro de fullTime (fullTime = regularTime + extraTime + penalties),
+    // por eso cuando hubo alargue/penales sumamos regularTime + extraTime y NO usamos fullTime.
+    const s = m.score || {};
+    const rt = s.regularTime, et = s.extraTime || { home: 0, away: 0 };
+    const ft = rt
+      ? { home: rt.home + et.home, away: rt.away + et.away }
+      : s.fullTime;
     if (!ft || ft.home == null || ft.away == null) continue;
-    // Con penales, fullTime es el resultado tras los 120 minutos (sin contar la tanda)
     const actual = resultados[pid] || {};
     if (actual.l == null && actual.v == null) {
       upd['admin/resultados/' + pid + '/l'] = ft.home;
       upd['admin/resultados/' + pid + '/v'] = ft.away;
       resultados[pid] = { l: ft.home, v: ft.away };
       console.log('Resultado ' + pid + ': ' + m.homeTeam.name + ' ' + ft.home + '-' + ft.away + ' ' + m.awayTeam.name +
-        (m.score.duration !== 'REGULAR' ? ' (' + m.score.duration + ')' : ''));
+        (s.duration !== 'REGULAR' ? ' (' + s.duration + ', 120\')' : ''));
     } else if (actual.l !== ft.home || actual.v !== ft.away) {
       console.log('AVISO ' + pid + ': el prode tiene ' + actual.l + '-' + actual.v +
         ' pero la API dice ' + ft.home + '-' + ft.away + ' (se respeta lo cargado a mano)');
