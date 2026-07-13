@@ -115,8 +115,9 @@ async function main() {
       console.log('Resultado ' + pid + ': ' + m.homeTeam.name + ' ' + ft.home + '-' + ft.away + ' ' + m.awayTeam.name +
         (s.duration !== 'REGULAR' ? ' (' + s.duration + ', 120\')' : ''));
     } else if (actual.l !== ft.home || actual.v !== ft.away) {
-      console.log('AVISO ' + pid + ': el prode tiene ' + actual.l + '-' + actual.v +
-        ' pero la API dice ' + ft.home + '-' + ft.away + ' (se respeta lo cargado a mano)');
+      console.log('AVISO ' + pid + ' (' + m.homeTeam.name + ' vs ' + m.awayTeam.name + '): el prode tiene ' +
+        actual.l + '-' + actual.v + ' pero la API dice ' + ft.home + '-' + ft.away +
+        (s.duration !== 'REGULAR' ? ' [' + s.duration + ']' : '') + ' (se respeta lo cargado a mano)');
     }
   }
 
